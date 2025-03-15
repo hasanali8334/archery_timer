@@ -378,12 +378,16 @@ class _ShootingScreenState extends State<ShootingScreen> {
                 if (!isRunning)
                   Container(
                     padding: const EdgeInsets.only(top: 24),
-                    child: Text(
-                      _getNextShotInfo(),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                    width: double.infinity,
+                    child: Center(
+                      child: Text(
+                        _getNextShotInfo(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
