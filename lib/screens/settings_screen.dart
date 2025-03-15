@@ -338,27 +338,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   isExpanded: true,
                   underline: Container(),
                   style: const TextStyle(color: Colors.white),
-                  items: ShootingStyle.values.map((ShootingStyle style) {
-                    String styleText;
-                    switch (style) {
-                      case ShootingStyle.standart:
-                        styleText = 'Standart AB';
-                        break;
-                      case ShootingStyle.donusumsuzABCD:
-                        styleText = 'Dönüşümsüz AB-CD/AB-CD';
-                        break;
-                      case ShootingStyle.donusumluABCD:
-                        styleText = 'Dönüşümlü AB-CD/CD-AB';
-                        break;
-                    }
-                    return DropdownMenuItem<ShootingStyle>(
-                      value: style,
-                      child: Text(
-                        styleText,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    );
-                  }).toList(),
+                  items:
+                      ShootingStyle.values.map((ShootingStyle style) {
+                        String styleText;
+                        switch (style) {
+                          case ShootingStyle.standart:
+                            styleText = 'Standart AB';
+                            break;
+                          case ShootingStyle.donusumsuzABCD:
+                            styleText = 'Dönüşümsüz AB-CD/AB-CD';
+                            break;
+                          case ShootingStyle.donusumluABCD:
+                            styleText = 'Dönüşümlü AB-CD/CD-AB';
+                            break;
+                        }
+                        return DropdownMenuItem<ShootingStyle>(
+                          value: style,
+                          child: Text(
+                            styleText,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        );
+                      }).toList(),
                   onChanged: (ShootingStyle? newValue) {
                     if (newValue != null) {
                       setState(() {

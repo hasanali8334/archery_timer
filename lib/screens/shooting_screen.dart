@@ -253,6 +253,19 @@ class _ShootingScreenState extends State<ShootingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          if (isPracticeRound && widget.practiceRounds > 0)
+            Container(
+              color: Colors.orange,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Text(
+                'DENEME ATIŞI',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
