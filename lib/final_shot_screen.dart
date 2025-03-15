@@ -19,6 +19,7 @@ class FinalShotScreen extends StatefulWidget {
 }
 
 class _FinalShotScreenState extends State<FinalShotScreen> {
+  Timer? _timer;
   bool isRunning = false;
   bool isArcherSelected = false;
   bool isPreparationPhase = true;
@@ -42,6 +43,12 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
     super.initState();
     _loadSettings();
     remainingTime = preparationTime;
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadSettings() async {
@@ -124,6 +131,8 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
 
   void switchArcher() {
     if (isRunning && isShootingPhase) {
+      _timer?.cancel();
+      
       if (isLeftArcherActive) {
         if (archer1Shots < totalShots) {
           leftArcherTimes.add(currentShotDuration);
@@ -145,11 +154,13 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
         currentShotDuration = 0;
         remainingTime = shootingTime;
       });
-      _playSound('whistle');
+      
+      _startCountdown(); // Yeni süre için geri sayımı başlat
     }
   }
 
   void _resetScreen() {
+    _timer?.cancel();
     setState(() {
       isRunning = false;
       isArcherSelected = false;
@@ -171,13 +182,13 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
   }
 
   void _startCountdown() {
+    _timer?.cancel();
     _playSound('whistle');
 
-    Timer.periodic(const Duration(seconds: 1), (timer) async {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (remainingTime > 0) {
           remainingTime--;
-          
           if (isShootingPhase) {
             currentShotDuration++;
             
@@ -198,6 +209,7 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
             isShootingPhase = true;
             remainingTime = shootingTime;
             currentShotDuration = 0;
+            _startCountdown(); // Yeni süre için geri sayımı başlat
           } else if (isShootingPhase) {
             // Atış süresi bittiğinde düdük çal
             _playSound('whistle');
@@ -231,7 +243,7 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
                 isLeftArcherActive = !isLeftArcherActive;
                 currentShotDuration = 0;
                 remainingTime = shootingTime;
-                _playSound('whistle');
+                _startCountdown(); // Yeni süre için geri sayımı başlat
               } else {
                 // Aktif yarışmacı atışlarını tamamladı, diğer yarışmacı tamamlamadıysa ona geç
                 bool otherArcherCanShoot = isLeftArcherActive ? 
@@ -241,7 +253,7 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
                   isLeftArcherActive = !isLeftArcherActive;
                   currentShotDuration = 0;
                   remainingTime = shootingTime;
-                  _playSound('whistle');
+                  _startCountdown(); // Yeni süre için geri sayımı başlat
                 }
               }
             }
