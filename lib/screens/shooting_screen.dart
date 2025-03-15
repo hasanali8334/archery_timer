@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../services/sound_service.dart';
 import '../models/shooting_style.dart';
@@ -29,17 +30,18 @@ class ShootingScreen extends StatefulWidget {
 }
 
 class _ShootingScreenState extends State<ShootingScreen> {
+  Timer? _timer;
   bool isRunning = false;
-  bool isWarningTime = false;
-  bool isBreakTime = false;
-  bool isPracticeRound = true;
   bool isPreparationPhase = true;
+  bool isShootingPhase = false;
+  bool isABGroup = true;
   late int remainingTime;
   int currentShotInSet = 1; // 1-2 arası atış sırası (AB veya CD için)
   int currentSet = 1; // 1-2 arası set sırası (her seride 2 set var)
   int currentRound = 1; // Mevcut seri sayısı
-  bool isGroupAB = true; // true = AB grubu, false = CD grubu
+  bool isPracticeRound = true;
   bool isPaused = false;
+  int currentShotDuration = 0;
 
   @override
   void initState() {
@@ -49,83 +51,93 @@ class _ShootingScreenState extends State<ShootingScreen> {
     isPaused = false;
   }
 
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
   void _updateTargetGroup() {
     if (widget.shootingStyle == ShootingStyle.standart) {
-      isGroupAB = true;
+      isABGroup = true;
     } else if (widget.shootingStyle == ShootingStyle.donusumsuzABCD) {
       // Dönüşümsüz: Set 1'de AB, Set 2'de CD atıyor
-      isGroupAB = currentSet == 1;
+      isABGroup = currentSet == 1;
     } else {
       // Dönüşümlü: Tek sayılı serilerde AB-CD, çift sayılı serilerde CD-AB
       if (currentRound % 2 == 1) {
         // Tek sayılı seri
-        isGroupAB = currentSet == 1;
+        isABGroup = currentSet == 1;
       } else {
         // Çift sayılı seri
-        isGroupAB = currentSet == 2;
+        isABGroup = currentSet == 2;
       }
     }
   }
 
-  void startTimer() {
-    if (!isRunning) {
-      if (!isPaused) {
-        widget.soundService.playWhistle();
-      }
-      setState(() {
-        isRunning = true;
-        isPaused = false;
-      });
+  void _playSound(String soundType) {
+    if (soundType == 'whistle') {
+      widget.soundService.playWhistle();
+    } else if (soundType == 'beep') {
+      widget.soundService.playBeep();
     }
+  }
 
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted && isRunning) {
+  void _startCountdown() {
+    _timer?.cancel();
+    if (!isPaused) {
+      _playSound('whistle');
+    }
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
         if (remainingTime > 0) {
-          setState(() {
-            remainingTime--;
-            if (!isPreparationPhase &&
-                remainingTime == widget.warningTime &&
-                !isWarningTime) {
-              isWarningTime = true;
-              widget.soundService.playWarningBeep();
+          remainingTime--;
+          if (!isPreparationPhase) {
+            currentShotDuration++;
+            // Uyarı süresi kontrolü
+            if (remainingTime <= widget.warningTime) {
+              _playSound('beep');
             }
             // Son 5 saniye kontrolü
             if (remainingTime <= 5 && remainingTime > 0) {
-              widget.soundService.playBeep();
+              _playSound('beep');
             }
-          });
-          startTimer();
+          }
         } else {
-          widget.soundService.playLongBeep();
+          timer.cancel();
           if (isPreparationPhase) {
             // Hazırlık süresi bitti, atış süresine geç
-            setState(() {
-              isPreparationPhase = false;
-              remainingTime = widget.shootingTime;
-              isWarningTime = false;
-            });
-            startTimer(); // Atış süresini otomatik başlat
-          } else {
-            stopTimer();
+            isPreparationPhase = false;
+            isShootingPhase = true;
+            remainingTime = widget.shootingTime;
+            currentShotDuration = 0;
+            _startCountdown(); // Yeni süre için geri sayımı başlat
+          } else if (isShootingPhase) {
+            // Atış süresi bittiğinde düdük çal
+            _playSound('whistle');
+            isShootingPhase = false;
+            isPreparationPhase = true;
+            isABGroup = !isABGroup;
+            remainingTime = widget.preparationTime;
+            currentShotDuration = 0;
+            isRunning = false;
+            finishShot();
           }
         }
+      });
+    });
+  }
+
+  void _toggleTimer() {
+    setState(() {
+      if (!isRunning) {
+        isRunning = true;
+        _startCountdown();
       }
     });
   }
 
-  void stopTimer() {
-    setState(() {
-      isRunning = false;
-      isPaused = true;
-    });
-  }
-
-  void continueTimer() {
-    startTimer();
-  }
-
   void finishShot() {
-    widget.soundService.playLongBeep();
     stopTimer();
 
     if (currentShotInSet == 2) {
@@ -139,8 +151,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
             currentSet = 1;
             currentRound++;
             remainingTime = widget.preparationTime;
-            isWarningTime = false;
-            isBreakTime = false;
             isPreparationPhase = true;
           });
           _updateTargetGroup();
@@ -152,8 +162,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
             currentSet = 1;
             currentRound = 1;
             remainingTime = widget.preparationTime;
-            isWarningTime = false;
-            isBreakTime = false;
             isPreparationPhase = true;
           });
           _updateTargetGroup();
@@ -167,8 +175,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
             currentSet = 1;
             currentRound++;
             remainingTime = widget.preparationTime;
-            isWarningTime = false;
-            isBreakTime = false;
             isPreparationPhase = true;
           });
           _updateTargetGroup();
@@ -179,8 +185,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
           currentShotInSet = 1;
           currentSet++;
           remainingTime = widget.preparationTime;
-          isWarningTime = false;
-          isBreakTime = true;
           isPreparationPhase = true;
         });
         _updateTargetGroup();
@@ -190,18 +194,24 @@ class _ShootingScreenState extends State<ShootingScreen> {
       setState(() {
         currentShotInSet++;
         remainingTime = widget.preparationTime;
-        isWarningTime = false;
         isPreparationPhase = true;
       });
       _updateTargetGroup();
     }
   }
 
-  void continueAfterBreak() {
+  void stopTimer() {
     setState(() {
-      isBreakTime = false;
+      isRunning = false;
+      isPaused = true;
     });
-    startTimer();
+  }
+
+  void continueTimer() {
+    setState(() {
+      isPaused = false;
+    });
+    _startCountdown();
   }
 
   void resetTimer() {
@@ -210,11 +220,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
       isPaused = false;
       remainingTime =
           isPreparationPhase ? widget.preparationTime : widget.shootingTime;
-      isWarningTime = false;
     });
   }
 
-  String formatTime(int seconds) {
+  String _formatTime(int seconds) {
     return seconds.toString();
   }
 
@@ -235,7 +244,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
     Color backgroundColor = Colors.blue.shade700;
     if (!isPreparationPhase && remainingTime <= 5 && remainingTime > 0) {
       backgroundColor = Colors.red;
-    } else if (!isPreparationPhase && isWarningTime) {
+    } else if (!isPreparationPhase && remainingTime <= widget.warningTime) {
       backgroundColor = Colors.orange;
     }
 
@@ -248,60 +257,60 @@ class _ShootingScreenState extends State<ShootingScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               // AB Grubu
-              AnimatedContainer(
+              AnimatedOpacity(
                 duration: const Duration(milliseconds: 300),
-                width: isGroupAB ? 200 : 100,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color:
-                      isGroupAB
-                          ? Colors.white.withOpacity(0.3)
-                          : Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: Colors.white,
-                    width: isGroupAB ? 2 : 1,
+                opacity: isABGroup ? 1.0 : 0.0,
+                child: Container(
+                  width: 200,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
                   ),
-                ),
-                child: Text(
-                  'AB',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: isGroupAB ? 40 : 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 2,
+                    ),
+                  ),
+                  child: Text(
+                    'AB',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
               // CD Grubu
-              AnimatedContainer(
+              AnimatedOpacity(
                 duration: const Duration(milliseconds: 300),
-                width: !isGroupAB ? 200 : 100,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color:
-                      !isGroupAB
-                          ? Colors.white.withOpacity(0.3)
-                          : Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: Colors.white,
-                    width: !isGroupAB ? 2 : 1,
+                opacity: !isABGroup ? 1.0 : 0.0,
+                child: Container(
+                  width: 200,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
                   ),
-                ),
-                child: Text(
-                  'CD',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: !isGroupAB ? 40 : 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 2,
+                    ),
+                  ),
+                  child: Text(
+                    'CD',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -347,130 +356,93 @@ class _ShootingScreenState extends State<ShootingScreen> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (isBreakTime)
-                Container(
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 20,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Text(
-                      'MOLA',
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                )
-              else
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 20,
-                  ),
-                  decoration: BoxDecoration(
-                    color:
-                        !isPreparationPhase &&
-                                remainingTime <= 5 &&
-                                remainingTime > 0
-                            ? Colors.red
-                            : (!isPreparationPhase && isWarningTime
-                                ? Colors.orange
-                                : (isPreparationPhase
-                                    ? Colors.orange
-                                    : Colors.green)),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    formatTime(remainingTime),
-                    style: const TextStyle(
-                      fontSize: 120,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 20,
+                ),
+                decoration: BoxDecoration(
+                  color:
+                      !isPreparationPhase &&
+                              remainingTime <= 5 &&
+                              remainingTime > 0
+                          ? Colors.red
+                          : (!isPreparationPhase && remainingTime <= widget.warningTime
+                              ? Colors.orange
+                              : (isPreparationPhase
+                                  ? Colors.orange
+                                  : Colors.green)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  _formatTime(remainingTime),
+                  style: const TextStyle(
+                    fontSize: 120,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
+              ),
             ],
           ),
           const SizedBox(height: 40),
-          if (isBreakTime)
-            ElevatedButton(
-              onPressed: continueAfterBreak,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 16,
-                ),
-              ),
-              child: const Text('DEVAM ET', style: TextStyle(fontSize: 20)),
-            )
-          else
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (!isRunning)
-                  ElevatedButton(
-                    onPressed: startTimer,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
-                    ),
-                    child: Text(
-                      isPaused ? 'DEVAM ET' : 'BAŞLA',
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                  )
-                else ...[
-                  ElevatedButton(
-                    onPressed: stopTimer,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
-                    ),
-                    child: const Text('DURDUR', style: TextStyle(fontSize: 20)),
-                  ),
-                  const SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: finishShot,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
-                    ),
-                    child: const Text('BİTİR', style: TextStyle(fontSize: 20)),
-                  ),
-                ],
-                const SizedBox(width: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (!isRunning)
                 ElevatedButton(
-                  onPressed: widget.onReset,
+                  onPressed: _toggleTimer,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red.shade700,
+                    backgroundColor: Colors.green,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 32,
                       vertical: 16,
                     ),
                   ),
-                  child: const Text('ANA MENÜ', style: TextStyle(fontSize: 20)),
+                  child: Text(
+                    isPaused ? 'DEVAM ET' : 'BAŞLA',
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                )
+              else ...[
+                ElevatedButton(
+                  onPressed: stopTimer,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                  ),
+                  child: const Text('DURDUR', style: TextStyle(fontSize: 20)),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: finishShot,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                  ),
+                  child: const Text('BİTİR', style: TextStyle(fontSize: 20)),
                 ),
               ],
-            ),
+              const SizedBox(width: 16),
+              ElevatedButton(
+                onPressed: widget.onReset,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.shade700,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
+                ),
+                child: const Text('ANA MENÜ', style: TextStyle(fontSize: 20)),
+              ),
+            ],
+          ),
         ],
       ),
     );
