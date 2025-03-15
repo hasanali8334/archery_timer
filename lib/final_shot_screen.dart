@@ -20,48 +20,84 @@ class FinalShotScreen extends StatefulWidget {
 
 class _FinalShotScreenState extends State<FinalShotScreen> {
   bool isRunning = false;
-  bool isPreparationPhase = false;
+  bool isArcherSelected = false;
+  bool isPreparationPhase = true;
   bool isShootingPhase = false;
-  Timer? _timer;
-  bool _warningPlayed = false;
-  bool preparationUsed = false;
-  
+  bool isLeftArcherActive = true;
+  late int remainingTime;
   int preparationTime = 10;
   int shootingTime = 20;
-  int totalShots = 3;
+  int totalShots = 5;
+  int warningTime = 10;
   int currentShotDuration = 0;
-  int warningTime = 5;
-  
-  int remainingTime = 0;
-  bool isLeftArcherActive = true;
-  bool isArcherSelected = false;
-  
   List<int> leftArcherTimes = [];
   List<int> rightArcherTimes = [];
-
   int archer1Shots = 0;
   int archer2Shots = 0;
+  String archer1Name = '1. YARIŞMACI';
+  String archer2Name = '2. YARIŞMACI';
 
   @override
   void initState() {
     super.initState();
-    loadSettings();
+    _loadSettings();
+    remainingTime = preparationTime;
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  Future<void> loadSettings() async {
+  Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      preparationTime = prefs.getInt('preparationTime') ?? 10;
-      shootingTime = prefs.getInt('shootingTime') ?? 20;
-      warningTime = prefs.getInt('warningTime') ?? 5;
-      totalShots = prefs.getInt('finalShotCount') ?? 3;
+      shootingTime = prefs.getInt('finalShootingTime') ?? 20;
+      totalShots = prefs.getInt('finalTotalShots') ?? 5;
+      archer1Name = prefs.getString('finalArcher1Name') ?? '1. YARIŞMACI';
+      archer2Name = prefs.getString('finalArcher2Name') ?? '2. YARIŞMACI';
     });
+  }
+
+  Future<void> _saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('finalShootingTime', shootingTime);
+    await prefs.setInt('finalTotalShots', totalShots);
+    await prefs.setString('finalArcher1Name', archer1Name);
+    await prefs.setString('finalArcher2Name', archer2Name);
+  }
+
+  void _showSettingsScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FinalShotSettingsScreen(
+          shootingTime: shootingTime,
+          totalShots: totalShots,
+          archer1Name: archer1Name,
+          archer2Name: archer2Name,
+          onShootingTimeChanged: (value) {
+            setState(() {
+              shootingTime = value;
+            });
+            _saveSettings();
+          },
+          onTotalShotsChanged: (value) {
+            setState(() {
+              totalShots = value;
+            });
+            _saveSettings();
+          },
+          onArcher1NameChanged: (value) {
+            setState(() {
+              archer1Name = value;
+            });
+            _saveSettings();
+          },
+          onArcher2NameChanged: (value) {
+            setState(() {
+              archer2Name = value;
+            });
+            _saveSettings();
+          },
+        ),
+      ),
+    );
   }
 
   void _playSound(String soundType) {
@@ -73,7 +109,7 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
   }
 
   void selectArcher(bool isLeft) {
-    if (!isRunning && !preparationUsed) {
+    if (!isRunning && !isArcherSelected) {
       setState(() {
         isArcherSelected = true;
         isLeftArcherActive = isLeft;
@@ -81,7 +117,6 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
         isShootingPhase = false;
         remainingTime = preparationTime;
         isRunning = true;
-        preparationUsed = true;
       });
       _startCountdown();
     }
@@ -101,18 +136,15 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
         isLeftArcherActive = !isLeftArcherActive;
         currentShotDuration = 0;
         remainingTime = shootingTime;
-        _warningPlayed = false;
       });
       _playSound('whistle');
     }
   }
 
   void _startCountdown() {
-    _timer?.cancel();
     _playSound('whistle');
-    _warningPlayed = false;
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+    Timer.periodic(const Duration(seconds: 1), (timer) async {
       setState(() {
         if (remainingTime > 0) {
           remainingTime--;
@@ -121,9 +153,8 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
             currentShotDuration++;
             
             // Uyarı süresi kontrolü
-            if (remainingTime <= warningTime && !_warningPlayed) {
+            if (remainingTime <= warningTime) {
               _playSound('beep');
-              _warningPlayed = true;
             }
             // Son 5 saniye kontrolü
             if (remainingTime <= 5 && remainingTime > 0) {
@@ -138,7 +169,6 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
             isShootingPhase = true;
             remainingTime = shootingTime;
             currentShotDuration = 0;
-            _warningPlayed = false;
           } else if (isShootingPhase) {
             // Atış süresi bittiğinde düdük çal
             _playSound('whistle');
@@ -160,7 +190,6 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
               isLeftArcherActive = !isLeftArcherActive;
               currentShotDuration = 0;
               remainingTime = shootingTime;
-              _warningPlayed = false;
               _playSound('whistle');
             }
           }
@@ -185,36 +214,6 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
     int minutes = time ~/ 60;
     int seconds = time % 60;
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-  }
-
-  Future<void> _saveSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('shootingTime', shootingTime);
-    await prefs.setInt('finalShotCount', totalShots);
-  }
-
-  void _showSettingsScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FinalShotSettingsScreen(
-          shootingTime: shootingTime,
-          totalShots: totalShots,
-          onShootingTimeChanged: (value) {
-            setState(() {
-              shootingTime = value;
-            });
-            _saveSettings();
-          },
-          onTotalShotsChanged: (value) {
-            setState(() {
-              totalShots = value;
-            });
-            _saveSettings();
-          },
-        ),
-      ),
-    );
   }
 
   @override
@@ -256,9 +255,9 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
                               children: [
                                 const Icon(Icons.person, size: 48, color: Colors.white),
                                 const SizedBox(height: 8),
-                                const Text(
-                                  '1. YARIŞMACI',
-                                  style: TextStyle(
+                                Text(
+                                  archer1Name,
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
@@ -300,9 +299,9 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
                               children: [
                                 const Icon(Icons.person, size: 48, color: Colors.white),
                                 const SizedBox(height: 8),
-                                const Text(
-                                  '2. YARIŞMACI',
-                                  style: TextStyle(
+                                Text(
+                                  archer2Name,
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
