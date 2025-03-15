@@ -44,6 +44,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
   bool isPracticeRound = true;
   bool isPaused = false;
   int currentShotDuration = 0;
+  int _practiceRoundCount = 0;
 
   @override
   void initState() {
@@ -51,6 +52,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
     remainingTime = widget.preparationTime;
     _updateTargetGroup();
     isPaused = false;
+    _practiceRoundCount = 0;
   }
 
   @override
@@ -141,11 +143,11 @@ class _ShootingScreenState extends State<ShootingScreen> {
       // Atış stili kontrolü
       switch (widget.shootingStyle) {
         case ShootingStyle.standard:
-          // Standart stil: Sadece AB grubu atıyor
-          isABGroup = true;
-          if (currentShotInSet >= 2) {
+          // Normal stil: Her sette AB ve CD sırayla atar
+          if (currentShotInSet >= widget.shotsPerSet) {
             currentShotInSet = 1;
             currentSet++;
+            isABGroup = true;
           } else {
             currentShotInSet++;
           }
@@ -168,13 +170,25 @@ class _ShootingScreenState extends State<ShootingScreen> {
           if (currentShotInSet >= 2) {
             currentShotInSet = 1;
             currentSet++;
-            isABGroup =
-                currentSet % 2 == 1; // Tek setlerde AB, çift setlerde CD başlar
+            isABGroup = currentSet % 2 == 1; // Tek setlerde AB, çift setlerde CD başlar
           } else {
             currentShotInSet++;
             isABGroup = !isABGroup; // Grupları değiştir
           }
           break;
+      }
+
+      // Deneme atışları tamamlandıysa yarışma atışlarına geç
+      if (widget.practiceRounds > 0) {
+        if (currentSet > _practiceRoundCount && isPracticeRound) {
+          _practiceRoundCount++;
+          if (_practiceRoundCount >= widget.practiceRounds) {
+            isPracticeRound = false;
+            currentSet = 1;
+            currentShotInSet = 1;
+            isABGroup = true;
+          }
+        }
       }
     });
   }
