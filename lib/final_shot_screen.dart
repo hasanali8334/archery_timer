@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'shot_report_screen.dart';
 import 'services/sound_service.dart';
+import 'screens/final_shot_settings_screen.dart';
 
 class FinalShotScreen extends StatefulWidget {
   final SoundService soundService;
@@ -186,6 +187,36 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
+  Future<void> _saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('shootingTime', shootingTime);
+    await prefs.setInt('finalShotCount', totalShots);
+  }
+
+  void _showSettingsScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FinalShotSettingsScreen(
+          shootingTime: shootingTime,
+          totalShots: totalShots,
+          onShootingTimeChanged: (value) {
+            setState(() {
+              shootingTime = value;
+            });
+            _saveSettings();
+          },
+          onTotalShotsChanged: (value) {
+            setState(() {
+              totalShots = value;
+            });
+            _saveSettings();
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -198,9 +229,7 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () {
-              // Ayarlar sayfasına git
-            },
+            onPressed: _showSettingsScreen,
           ),
         ],
       ),
