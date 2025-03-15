@@ -241,90 +241,102 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
               Expanded(
                 flex: 2,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    // 1. Yarışmacı (Yeşil)
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: !isRunning ? () => selectArcher(true) : null,
-                        child: Card(
-                          color: Colors.green,
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.person, size: 48, color: Colors.white),
-                                const SizedBox(height: 8),
-                                Text(
-                                  archer1Name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                    // Sol yarışmacı kartı
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      width: isLeftArcherActive ? 180 : 150,
+                      height: isLeftArcherActive ? 220 : 180,
+                      transform: Matrix4.identity()
+                        ..translate(0.0, isLeftArcherActive ? -20.0 : 0.0),
+                      decoration: BoxDecoration(
+                        color: isLeftArcherActive ? Colors.green : Colors.red,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => selectArcher(true),
+                          borderRadius: BorderRadius.circular(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.person,
+                                size: isLeftArcherActive ? 56 : 48,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                archer1Name,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: isLeftArcherActive ? 22 : 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                const SizedBox(height: 16),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    '$archer1Shots / $totalShots',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Atış: $archer1Shots/$totalShots',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: isLeftArcherActive ? 18 : 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    // 2. Yarışmacı (Kırmızı)
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: !isRunning ? () => selectArcher(false) : null,
-                        child: Card(
-                          color: Colors.red,
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.person, size: 48, color: Colors.white),
-                                const SizedBox(height: 8),
-                                Text(
-                                  archer2Name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                    // Sağ yarışmacı kartı
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      width: !isLeftArcherActive ? 180 : 150,
+                      height: !isLeftArcherActive ? 220 : 180,
+                      transform: Matrix4.identity()
+                        ..translate(0.0, !isLeftArcherActive ? -20.0 : 0.0),
+                      decoration: BoxDecoration(
+                        color: !isLeftArcherActive ? Colors.green : Colors.red,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => selectArcher(false),
+                          borderRadius: BorderRadius.circular(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.person,
+                                size: !isLeftArcherActive ? 56 : 48,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                archer2Name,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: !isLeftArcherActive ? 22 : 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                const SizedBox(height: 16),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    '$archer2Shots / $totalShots',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Atış: $archer2Shots/$totalShots',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: !isLeftArcherActive ? 18 : 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
