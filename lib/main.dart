@@ -25,7 +25,13 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const MainScreen(),
-        '/final_shot': (context) => FinalShotScreen(soundService: SoundService()),
+        '/final_shot': (context) => FinalShotScreen(
+          soundService: SoundService(),
+          onReset: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          ),
+        ),
       },
     );
   }
@@ -179,6 +185,7 @@ class _MainScreenState extends State<MainScreen> {
                   MaterialPageRoute(
                     builder: (context) => FinalShotScreen(
                       soundService: _soundService,
+                      onReset: _resetTimer,
                     ),
                   ),
                 );
