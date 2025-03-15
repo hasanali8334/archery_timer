@@ -101,12 +101,12 @@ class _ShootingScreenState extends State<ShootingScreen> {
       setState(() {
         if (remainingTime > 0) {
           remainingTime--;
-          
+
           // Uyarı süresi kontrolü
           if (!isPreparationPhase && remainingTime == widget.warningTime) {
             _playSound('beep'); // Uyarı başlangıcında tek beep
           }
-          
+
           // Son 5 saniye kontrolü
           if (!isPreparationPhase && remainingTime <= 5 && remainingTime > 0) {
             _playSound('beep');
@@ -115,7 +115,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
           _timer?.cancel();
           isRunning = false;
           _playSound('whistle');
-          
+
           if (isPreparationPhase) {
             // Hazırlık süresi bitti, atış süresine geç
             setState(() {
@@ -137,7 +137,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
     setState(() {
       isPreparationPhase = true;
       remainingTime = widget.preparationTime;
-      
+
       // Atış stili kontrolü
       switch (widget.shootingStyle) {
         case ShootingStyle.standard:
@@ -150,7 +150,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
             currentShotInSet++;
           }
           break;
-          
+
         case ShootingStyle.alternating:
           // Dönüşümsüz stil: Her sette AB ve CD sırası aynı
           if (currentShotInSet >= 2) {
@@ -162,13 +162,14 @@ class _ShootingScreenState extends State<ShootingScreen> {
             isABGroup = false; // AB'den CD'ye geç
           }
           break;
-          
+
         case ShootingStyle.rotating:
           // Dönüşümlü stil: Her sette AB ve CD sırası değişiyor
           if (currentShotInSet >= 2) {
             currentShotInSet = 1;
             currentSet++;
-            isABGroup = currentSet % 2 == 1; // Tek setlerde AB, çift setlerde CD başlar
+            isABGroup =
+                currentSet % 2 == 1; // Tek setlerde AB, çift setlerde CD başlar
           } else {
             currentShotInSet++;
             isABGroup = !isABGroup; // Grupları değiştir
@@ -265,7 +266,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
   }
 
   String _formatTime(int seconds) {
-    return seconds.toString();
+    return '$seconds';
   }
 
   // Sonraki atış bilgisini döndürür
@@ -279,9 +280,12 @@ class _ShootingScreenState extends State<ShootingScreen> {
   @override
   Widget build(BuildContext context) {
     // Timer arkaplan rengi
-    Color timerColor = isPreparationPhase 
-        ? Colors.orange 
-        : (remainingTime <= widget.warningTime ? Colors.orange : Colors.green);
+    Color timerColor =
+        isPreparationPhase
+            ? Colors.orange
+            : (remainingTime <= widget.warningTime
+                ? Colors.orange
+                : Colors.green);
 
     return Scaffold(
       backgroundColor: Colors.blue.shade700,
@@ -312,15 +316,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    'DENEME ATIŞI',
-                    style: TextStyle(
-                      color: Colors.orange,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
                   Text(
                     isPracticeRound ? 'DENEME SERİSİ' : 'YARIŞ SERİSİ',
                     style: TextStyle(
@@ -396,8 +391,12 @@ class _ShootingScreenState extends State<ShootingScreen> {
                       ElevatedButton(
                         onPressed: isRunning ? _stopTimer : _startTimer,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: isRunning ? Colors.orange : Colors.green,
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          backgroundColor:
+                              isRunning ? Colors.orange : Colors.green,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 16,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -411,7 +410,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
                         onPressed: _finishShot,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 16,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -429,7 +431,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
                     onPressed: widget.onReset,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red.shade900,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
