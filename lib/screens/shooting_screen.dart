@@ -230,7 +230,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.blue.shade700,
       body: Column(
         children: [
           // Üst kısım (AB/CD göstergesi)
@@ -241,7 +241,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                 duration: const Duration(milliseconds: 300),
                 opacity: isABGroup ? 1.0 : 0.0,
                 child: Text(
-                  'AB',
+                  isABGroup ? 'AB' : 'CD',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 48,
@@ -274,15 +274,17 @@ class _ShootingScreenState extends State<ShootingScreen> {
                   padding: const EdgeInsets.only(bottom: 24),
                   child: Column(
                     children: [
-                      Text(
-                        isPracticeRound ? 'DENEME SERİSİ' : 'YARIŞ SERİSİ',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      if (widget.practiceRounds > 0)
+                        Text(
+                          isPracticeRound ? 'DENEME SERİSİ' : 'YARIŞ SERİSİ',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
+                      if (widget.practiceRounds > 0)
+                        const SizedBox(height: 8),
                       Text(
                         '${currentSet}. SET - ${currentShotInSet}. ATIŞ',
                         style: TextStyle(
