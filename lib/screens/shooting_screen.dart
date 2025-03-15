@@ -285,151 +285,165 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
     return Scaffold(
       backgroundColor: Colors.blue.shade700,
-      body: Column(
-        children: [
-          // Üst kısım (AB/CD göstergesi)
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 32),
-            child: Center(
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 300),
-                opacity: 1.0,
-                child: Text(
-                  isABGroup ? 'AB' : 'CD',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 72,
-                    fontWeight: FontWeight.bold,
+      body: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Üst kısım (AB/CD göstergesi)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: Center(
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 300),
+                  opacity: 1.0,
+                  child: Text(
+                    isABGroup ? 'AB' : 'CD',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 72,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          // Deneme/Yarış serisi göstergesi
-          if (widget.practiceRounds > 0)
-            Column(
-              children: [
-                Text(
-                  'DENEME ATIŞI',
-                  style: TextStyle(
-                    color: Colors.orange,
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  isPracticeRound ? 'DENEME SERİSİ' : 'YARIŞ SERİSİ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${currentSet}. SET - ${currentShotInSet}. ATIŞ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          // Timer ve butonlar
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            // Deneme/Yarış serisi göstergesi
+            if (widget.practiceRounds > 0)
+              Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Süre göstergesi
-                  Container(
-                    padding: const EdgeInsets.all(32),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: timerColor,
-                    ),
-                    child: Text(
-                      _formatTime(remainingTime),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 72,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  Text(
+                    'DENEME ATIŞI',
+                    style: TextStyle(
+                      color: Colors.orange,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  // Sonraki atış bilgisi
-                  if (!isRunning)
+                  const SizedBox(height: 16),
+                  Text(
+                    isPracticeRound ? 'DENEME SERİSİ' : 'YARIŞ SERİSİ',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '${currentSet}. SET - ${currentShotInSet}. ATIŞ',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            // Timer ve butonlar
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Süre göstergesi
                     Container(
-                      padding: const EdgeInsets.only(top: 24),
-                      width: double.infinity,
-                      child: Center(
-                        child: Text(
-                          _getNextShotInfo(),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: timerColor,
+                      ),
+                      child: Text(
+                        _formatTime(remainingTime),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 72,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
+                    // Sonraki atış bilgisi
+                    if (!isRunning)
+                      Container(
+                        padding: const EdgeInsets.only(top: 24),
+                        width: double.infinity,
+                        child: Center(
+                          child: Text(
+                            _getNextShotInfo(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            // Alt kısım (butonlar)
+            Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Üst sıra butonları
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: isRunning ? _stopTimer : _startTimer,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isRunning ? Colors.orange : Colors.green,
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text(
+                          isRunning ? 'DURDUR' : 'BAŞLAT',
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: _finishShot,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Text(
+                          'BİTİR',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Alt sıra butonu
+                  ElevatedButton(
+                    onPressed: widget.onReset,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.shade900,
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: const Text(
+                      'SIFIRLA',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
-          // Alt kısım (butonlar)
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // Üst sıra butonları
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: isRunning ? _stopTimer : _startTimer,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isRunning ? Colors.orange : Colors.green,
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      ),
-                      child: Text(
-                        isRunning ? 'DURDUR' : 'BAŞLAT',
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: _finishShot,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      ),
-                      child: const Text(
-                        'BİTİR',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                // Alt sıra butonu
-                ElevatedButton(
-                  onPressed: widget.onReset,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red.shade900,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  ),
-                  child: const Text(
-                    'SIFIRLA',
-                    style: TextStyle(fontSize: 20),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
