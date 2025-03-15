@@ -22,12 +22,16 @@ class FinalShotSettingsScreen extends StatefulWidget {
 class _FinalShotSettingsScreenState extends State<FinalShotSettingsScreen> {
   late TextEditingController _shootingTimeController;
   late TextEditingController _totalShotsController;
+  int _tempShootingTime = 0;
+  int _tempTotalShots = 0;
 
   @override
   void initState() {
     super.initState();
-    _shootingTimeController = TextEditingController(text: widget.shootingTime.toString());
-    _totalShotsController = TextEditingController(text: widget.totalShots.toString());
+    _tempShootingTime = widget.shootingTime;
+    _tempTotalShots = widget.totalShots;
+    _shootingTimeController = TextEditingController(text: _tempShootingTime.toString());
+    _totalShotsController = TextEditingController(text: _tempTotalShots.toString());
   }
 
   @override
@@ -41,7 +45,9 @@ class _FinalShotSettingsScreenState extends State<FinalShotSettingsScreen> {
     if (value.isEmpty) return;
     final newValue = int.tryParse(value);
     if (newValue != null && newValue >= 10) {
-      widget.onShootingTimeChanged(newValue);
+      setState(() {
+        _tempShootingTime = newValue;
+      });
     }
   }
 
@@ -49,8 +55,16 @@ class _FinalShotSettingsScreenState extends State<FinalShotSettingsScreen> {
     if (value.isEmpty) return;
     final newValue = int.tryParse(value);
     if (newValue != null && newValue >= 1) {
-      widget.onTotalShotsChanged(newValue);
+      setState(() {
+        _tempTotalShots = newValue;
+      });
     }
+  }
+
+  void _saveSettings() {
+    widget.onShootingTimeChanged(_tempShootingTime);
+    widget.onTotalShotsChanged(_tempTotalShots);
+    Navigator.pop(context);
   }
 
   @override
@@ -100,6 +114,25 @@ class _FinalShotSettingsScreenState extends State<FinalShotSettingsScreen> {
                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
               onChanged: _updateTotalShots,
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _saveSettings,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Text(
+                  'KAYDET',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
