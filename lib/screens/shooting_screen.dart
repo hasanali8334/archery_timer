@@ -53,11 +53,17 @@ class _ShootingScreenState extends State<ShootingScreen> {
     if (widget.shootingStyle == ShootingStyle.standart) {
       isGroupAB = true;
     } else if (widget.shootingStyle == ShootingStyle.donusumsuzABCD) {
-      // Dönüşümsüz: AB-CD/AB-CD
+      // Dönüşümsüz: Set 1'de AB, Set 2'de CD atıyor
       isGroupAB = currentSet == 1;
     } else {
-      // Dönüşümlü: AB-CD/CD-AB
-      isGroupAB = (currentRound % 2 == 1) ? currentSet == 1 : currentSet == 2;
+      // Dönüşümlü: Tek sayılı serilerde AB-CD, çift sayılı serilerde CD-AB
+      if (currentRound % 2 == 1) {
+        // Tek sayılı seri
+        isGroupAB = currentSet == 1;
+      } else {
+        // Çift sayılı seri
+        isGroupAB = currentSet == 2;
+      }
     }
   }
 
