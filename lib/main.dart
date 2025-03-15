@@ -25,13 +25,15 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const MainScreen(),
-        '/final_shot': (context) => FinalShotScreen(
-          soundService: SoundService(),
-          onReset: () => Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const MainScreen()),
-          ),
-        ),
+        '/final_shot':
+            (context) => FinalShotScreen(
+              soundService: SoundService(),
+              onReset:
+                  () => Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MainScreen()),
+                  ),
+            ),
       },
     );
   }
@@ -84,9 +86,7 @@ class _MainScreenState extends State<MainScreen> {
   void _resetTimer() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (context) => const MainScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const MainScreen()),
     );
   }
 
@@ -94,50 +94,51 @@ class _MainScreenState extends State<MainScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SettingsScreen(
-          preparationTime: _preparationTime,
-          shootingTime: _shootingTime,
-          warningTime: _warningTime,
-          practiceRounds: _practiceRounds,
-          matchRounds: _matchRounds,
-          shootingStyle: _shootingStyle,
-          onPreparationTimeChanged: (value) {
-            setState(() {
-              _preparationTime = value;
-            });
-            _saveSettings();
-          },
-          onShootingTimeChanged: (value) {
-            setState(() {
-              _shootingTime = value;
-            });
-            _saveSettings();
-          },
-          onWarningTimeChanged: (value) {
-            setState(() {
-              _warningTime = value;
-            });
-            _saveSettings();
-          },
-          onPracticeRoundsChanged: (value) {
-            setState(() {
-              _practiceRounds = value;
-            });
-            _saveSettings();
-          },
-          onMatchRoundsChanged: (value) {
-            setState(() {
-              _matchRounds = value;
-            });
-            _saveSettings();
-          },
-          onShootingStyleChanged: (value) {
-            setState(() {
-              _shootingStyle = value;
-            });
-            _saveSettings();
-          },
-        ),
+        builder:
+            (context) => SettingsScreen(
+              preparationTime: _preparationTime,
+              shootingTime: _shootingTime,
+              warningTime: _warningTime,
+              practiceRounds: _practiceRounds,
+              matchRounds: _matchRounds,
+              shootingStyle: _shootingStyle,
+              onPreparationTimeChanged: (value) {
+                setState(() {
+                  _preparationTime = value;
+                });
+                _saveSettings();
+              },
+              onShootingTimeChanged: (value) {
+                setState(() {
+                  _shootingTime = value;
+                });
+                _saveSettings();
+              },
+              onWarningTimeChanged: (value) {
+                setState(() {
+                  _warningTime = value;
+                });
+                _saveSettings();
+              },
+              onPracticeRoundsChanged: (value) {
+                setState(() {
+                  _practiceRounds = value;
+                });
+                _saveSettings();
+              },
+              onMatchRoundsChanged: (value) {
+                setState(() {
+                  _matchRounds = value;
+                });
+                _saveSettings();
+              },
+              onShootingStyleChanged: (value) {
+                setState(() {
+                  _shootingStyle = value;
+                });
+                _saveSettings();
+              },
+            ),
       ),
     );
   }
@@ -184,20 +185,24 @@ class _MainScreenState extends State<MainScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => FinalShotScreen(
-                      soundService: _soundService,
-                      onReset: _resetTimer,
-                    ),
+                    builder:
+                        (context) => FinalShotScreen(
+                          soundService: _soundService,
+                          onReset: _resetTimer,
+                        ),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
               ),
               child: const Text(
                 'FİNAL ATIŞI',
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 20, color: Colors.white),
               ),
             ),
           ),
