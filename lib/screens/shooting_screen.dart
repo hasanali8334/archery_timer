@@ -125,12 +125,64 @@ class _ShootingScreenState extends State<ShootingScreen> {
           _playSound('whistle');
           
           if (isPreparationPhase) {
-            isPreparationPhase = false;
-            remainingTime = widget.shootingTime;
+            // Hazırlık süresi bitti, atış süresine geç
+            setState(() {
+              isPreparationPhase = false;
+              remainingTime = widget.shootingTime;
+            });
             _startTimer();
+          } else {
+            // Atış süresi bitti, sonraki atışa geç
+            _finishShot();
           }
         }
       });
+    });
+  }
+
+  void _finishShot() {
+    _stopTimer();
+    setState(() {
+      isPreparationPhase = true;
+      remainingTime = widget.preparationTime;
+      
+      // Atış stili kontrolü
+      switch (widget.shootingStyle) {
+        case ShootingStyle.standard:
+          // Standart stil: Sadece AB grubu atıyor
+          isABGroup = true;
+          if (currentShotInSet >= 2) {
+            currentShotInSet = 1;
+            currentSet++;
+          } else {
+            currentShotInSet++;
+          }
+          break;
+          
+        case ShootingStyle.alternating:
+          // Dönüşümsüz stil: Her sette AB ve CD sırası aynı
+          if (currentShotInSet >= 2) {
+            currentShotInSet = 1;
+            currentSet++;
+            isABGroup = true;
+          } else {
+            currentShotInSet++;
+            isABGroup = false; // AB'den CD'ye geç
+          }
+          break;
+          
+        case ShootingStyle.rotating:
+          // Dönüşümlü stil: Her sette AB ve CD sırası değişiyor
+          if (currentShotInSet >= 2) {
+            currentShotInSet = 1;
+            currentSet++;
+            isABGroup = currentSet % 2 == 1; // Tek setlerde AB, çift setlerde CD başlar
+          } else {
+            currentShotInSet++;
+            isABGroup = !isABGroup; // Grupları değiştir
+          }
+          break;
+      }
     });
   }
 
@@ -224,59 +276,12 @@ class _ShootingScreenState extends State<ShootingScreen> {
     return seconds.toString();
   }
 
-  void _finishShot() {
-    _stopTimer();
-    setState(() {
-      isPreparationPhase = true;
-      remainingTime = widget.preparationTime;
-      
-      // Atış sayısını artır
-      currentShotInSet++;
-      
-      // Atış stili kontrolü
-      switch (widget.shootingStyle) {
-        case ShootingStyle.standard:
-          // Standart stil: Sadece AB grubu atıyor
-          isABGroup = true;
-          if (currentShotInSet > 2) {
-            currentShotInSet = 1;
-            currentSet++;
-          }
-          break;
-          
-        case ShootingStyle.alternating:
-          // Dönüşümsüz stil: Her sette AB ve CD sırası aynı
-          if (currentShotInSet <= 2) {
-            // Set içinde grup değişimi
-            isABGroup = currentShotInSet == 1;
-          } else {
-            // Yeni sete geç
-            currentShotInSet = 1;
-            currentSet++;
-            isABGroup = true;
-          }
-          break;
-          
-        case ShootingStyle.rotating:
-          // Dönüşümlü stil: Her sette AB ve CD sırası değişiyor
-          if (currentShotInSet <= 2) {
-            // Set içinde grup değişimi
-            isABGroup = currentSet % 2 == 1 ? currentShotInSet == 1 : currentShotInSet == 2;
-          } else {
-            // Yeni sete geç
-            currentShotInSet = 1;
-            currentSet++;
-            isABGroup = currentSet % 2 == 1;
-          }
-          break;
-      }
-    });
-  }
-
   // Sonraki atış bilgisini döndürür
   String _getNextShotInfo() {
     String groupText = isABGroup ? 'AB' : 'CD';
-    return 'Sonraki Atış: $groupText Grubu - ${currentSet}. Set ${currentShotInSet}. Atış';
+    String setInfo = '${currentSet}. Set';
+    String shotInfo = '${currentShotInSet}. Atış';
+    return 'Sonraki Atış: $groupText Grubu - $setInfo $shotInfo';
   }
 
   @override
