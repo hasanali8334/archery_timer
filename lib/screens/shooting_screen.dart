@@ -109,7 +109,14 @@ class _ShootingScreenState extends State<ShootingScreen> {
       setState(() {
         if (remainingTime > 0) {
           remainingTime--;
-          if (remainingTime <= widget.warningTime && !isPreparationPhase) {
+          
+          // Uyarı süresi kontrolü
+          if (!isPreparationPhase && remainingTime == widget.warningTime) {
+            _playSound('beep'); // Uyarı başlangıcında tek beep
+          }
+          
+          // Son 5 saniye kontrolü
+          if (!isPreparationPhase && remainingTime <= 5 && remainingTime > 0) {
             _playSound('beep');
           }
         } else {
@@ -266,8 +273,19 @@ class _ShootingScreenState extends State<ShootingScreen> {
     });
   }
 
+  // Sonraki atış bilgisini döndürür
+  String _getNextShotInfo() {
+    String groupText = isABGroup ? 'AB' : 'CD';
+    return 'Sonraki Atış: $groupText Grubu - ${currentSet}. Set ${currentShotInSet}. Atış';
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Timer arkaplan rengi
+    Color timerColor = isPreparationPhase 
+        ? Colors.orange 
+        : (remainingTime <= widget.warningTime ? Colors.orange : Colors.green);
+
     return Scaffold(
       backgroundColor: Colors.blue.shade700,
       body: Column(
@@ -340,7 +358,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isPreparationPhase ? Colors.orange : Colors.green,
+                    color: timerColor,
                   ),
                   child: Text(
                     _formatTime(remainingTime),
@@ -351,6 +369,19 @@ class _ShootingScreenState extends State<ShootingScreen> {
                     ),
                   ),
                 ),
+                // Sonraki atış bilgisi
+                if (!isRunning)
+                  Container(
+                    padding: const EdgeInsets.only(top: 24),
+                    child: Text(
+                      _getNextShotInfo(),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
