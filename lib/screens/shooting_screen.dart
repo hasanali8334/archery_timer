@@ -60,9 +60,9 @@ class _ShootingScreenState extends State<ShootingScreen> {
   }
 
   void _updateTargetGroup() {
-    if (widget.shootingStyle == ShootingStyle.standart) {
+    if (widget.shootingStyle == ShootingStyle.standard) {
       isABGroup = true;
-    } else if (widget.shootingStyle == ShootingStyle.donusumsuzABCD) {
+    } else if (widget.shootingStyle == ShootingStyle.alternating) {
       // Dönüşümsüz: Set 1'de AB, Set 2'de CD atıyor
       isABGroup = currentSet == 1;
     } else {
@@ -221,14 +221,47 @@ class _ShootingScreenState extends State<ShootingScreen> {
     _stopTimer();
     setState(() {
       isPreparationPhase = true;
-      isABGroup = !isABGroup;
       remainingTime = widget.preparationTime;
       
       // Atış sayısını artır
       currentShotInSet++;
-      if (currentShotInSet > widget.shotsPerSet) {
-        currentShotInSet = 1;
-        currentSet++;
+      
+      // Atış stili kontrolü
+      switch (widget.shootingStyle) {
+        case ShootingStyle.standard:
+          // Standart stil: Sadece AB grubu atıyor
+          isABGroup = true;
+          if (currentShotInSet > 2) {
+            currentShotInSet = 1;
+            currentSet++;
+          }
+          break;
+          
+        case ShootingStyle.alternating:
+          // Dönüşümsüz stil: Her sette AB ve CD sırası aynı
+          if (currentShotInSet <= 2) {
+            // Set içinde grup değişimi
+            isABGroup = currentShotInSet == 1;
+          } else {
+            // Yeni sete geç
+            currentShotInSet = 1;
+            currentSet++;
+            isABGroup = true;
+          }
+          break;
+          
+        case ShootingStyle.rotating:
+          // Dönüşümlü stil: Her sette AB ve CD sırası değişiyor
+          if (currentShotInSet <= 2) {
+            // Set içinde grup değişimi
+            isABGroup = currentSet % 2 == 1 ? currentShotInSet == 1 : currentShotInSet == 2;
+          } else {
+            // Yeni sete geç
+            currentShotInSet = 1;
+            currentSet++;
+            isABGroup = currentSet % 2 == 1;
+          }
+          break;
       }
     });
   }
@@ -245,7 +278,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
             child: Center(
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 300),
-                opacity: isABGroup ? 1.0 : 0.0,
+                opacity: 1.0,
                 child: Text(
                   isABGroup ? 'AB' : 'CD',
                   style: TextStyle(

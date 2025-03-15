@@ -1,5 +1,5 @@
 enum ShootingStyle {
-  donusumsuzABCD, // AB-CD/AB-CD: 1.atış AB, 2.atış CD, 3.atış AB, 4.atış CD
-  donusumluABCD, // AB-CD/CD-AB: 1.atış AB, 2.atış CD, 3.atış CD, 4.atış AB
-  standart, // Tek atış AB hedefine
+  standard,    // Sadece AB grubu atıyor
+  alternating, // Dönüşümsüz: Her sette AB sonra CD
+  rotating     // Dönüşümlü: 1. set AB-CD, 2. set CD-AB
 }

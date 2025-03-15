@@ -49,9 +49,9 @@ class _MainScreenState extends State<MainScreen> {
   int _preparationTime = 10;
   int _shootingTime = 120;
   int _warningTime = 30;
-  int _practiceRounds = 0;
+  int _practiceRounds = 2;
   int _matchRounds = 12;
-  ShootingStyle _shootingStyle = ShootingStyle.donusumsuzABCD;
+  ShootingStyle _shootingStyle = ShootingStyle.alternating;
 
   @override
   void initState() {
@@ -65,9 +65,9 @@ class _MainScreenState extends State<MainScreen> {
       _preparationTime = prefs.getInt('preparationTime') ?? 10;
       _shootingTime = prefs.getInt('shootingTime') ?? 120;
       _warningTime = prefs.getInt('warningTime') ?? 30;
-      _practiceRounds = prefs.getInt('practiceRounds') ?? 0;
+      _practiceRounds = prefs.getInt('practiceRounds') ?? 2;
       _matchRounds = prefs.getInt('matchRounds') ?? 12;
-      _shootingStyle = ShootingStyle.values[prefs.getInt('shootingStyle') ?? 0];
+      _shootingStyle = ShootingStyle.values[prefs.getInt('shootingStyle') ?? 1];
     });
   }
 

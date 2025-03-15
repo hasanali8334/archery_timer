@@ -317,56 +317,75 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Atış Stili',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+              ListTile(
+                title: const Text(
+                  'ATIŞ STİLİ',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: DropdownButton<ShootingStyle>(
-                  value: _shootingStyle,
-                  dropdownColor: Colors.blue.shade800,
-                  isExpanded: true,
-                  underline: Container(),
-                  style: const TextStyle(color: Colors.white),
-                  items:
-                      ShootingStyle.values.map((ShootingStyle style) {
-                        String styleText;
-                        switch (style) {
-                          case ShootingStyle.standart:
-                            styleText = 'Standart AB';
-                            break;
-                          case ShootingStyle.donusumsuzABCD:
-                            styleText = 'Dönüşümsüz AB-CD/AB-CD';
-                            break;
-                          case ShootingStyle.donusumluABCD:
-                            styleText = 'Dönüşümlü AB-CD/CD-AB';
-                            break;
+                subtitle: Column(
+                  children: [
+                    RadioListTile<ShootingStyle>(
+                      title: const Text(
+                        'STANDART',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      subtitle: const Text(
+                        'Sadece AB grubu atıyor',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                      value: ShootingStyle.standard,
+                      groupValue: _shootingStyle,
+                      onChanged: (ShootingStyle? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _shootingStyle = newValue;
+                          });
                         }
-                        return DropdownMenuItem<ShootingStyle>(
-                          value: style,
-                          child: Text(
-                            styleText,
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        );
-                      }).toList(),
-                  onChanged: (ShootingStyle? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        _shootingStyle = newValue;
-                      });
-                    }
-                  },
+                      },
+                    ),
+                    RadioListTile<ShootingStyle>(
+                      title: const Text(
+                        'DÖNÜŞÜMSÜZ',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      subtitle: const Text(
+                        'Her sette: 1.atış AB, 2.atış CD',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                      value: ShootingStyle.alternating,
+                      groupValue: _shootingStyle,
+                      onChanged: (ShootingStyle? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _shootingStyle = newValue;
+                          });
+                        }
+                      },
+                    ),
+                    RadioListTile<ShootingStyle>(
+                      title: const Text(
+                        'DÖNÜŞÜMLÜ',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      subtitle: const Text(
+                        '1.set: AB-CD, 2.set: CD-AB',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                      value: ShootingStyle.rotating,
+                      groupValue: _shootingStyle,
+                      onChanged: (ShootingStyle? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _shootingStyle = newValue;
+                          });
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],
