@@ -229,22 +229,13 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = Colors.blue.shade700;
-    if (!isPreparationPhase && remainingTime <= 5 && remainingTime > 0) {
-      backgroundColor = Colors.red;
-    } else if (!isPreparationPhase && remainingTime <= widget.warningTime) {
-      backgroundColor = Colors.orange;
-    }
-
-    return Container(
-      color: backgroundColor,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Column(
         children: [
           // Üst kısım (AB/CD göstergesi)
           Container(
-            color: Colors.orange,
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: 24),
             child: Center(
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 300),
@@ -253,7 +244,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                   'AB',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 32,
+                    fontSize: 48,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -278,6 +269,31 @@ class _ShootingScreenState extends State<ShootingScreen> {
                       ),
                     ),
                   ),
+                // Atış bilgisi
+                Container(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Column(
+                    children: [
+                      Text(
+                        isPracticeRound ? 'DENEME SERİSİ' : 'YARIŞ SERİSİ',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${currentSet}. SET - ${currentShotInSet}. ATIŞ',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 // Süre göstergesi
                 Container(
                   padding: const EdgeInsets.all(32),
