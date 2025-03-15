@@ -174,6 +174,7 @@ class _MainScreenState extends State<MainScreen> {
               practiceRounds: _practiceRounds,
               preparationTime: _preparationTime,
               matchRounds: _matchRounds,
+              shotsPerSet: 6,
             ),
           ),
           Padding(

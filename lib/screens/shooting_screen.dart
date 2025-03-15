@@ -11,6 +11,7 @@ class ShootingScreen extends StatefulWidget {
   final int practiceRounds;
   final int preparationTime;
   final int matchRounds;
+  final int shotsPerSet;
   final ShootingStyle shootingStyle;
 
   const ShootingScreen({
@@ -22,6 +23,7 @@ class ShootingScreen extends StatefulWidget {
     required this.practiceRounds,
     required this.preparationTime,
     required this.matchRounds,
+    required this.shotsPerSet,
     required this.shootingStyle,
   });
 
@@ -221,6 +223,13 @@ class _ShootingScreenState extends State<ShootingScreen> {
       isPreparationPhase = true;
       isABGroup = !isABGroup;
       remainingTime = widget.preparationTime;
+      
+      // Atış sayısını artır
+      currentShotInSet++;
+      if (currentShotInSet > widget.shotsPerSet) {
+        currentShotInSet = 1;
+        currentSet++;
+      }
     });
   }
 
@@ -254,7 +263,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Deneme atışı yazısı
-                if (isPracticeRound && widget.practiceRounds > 0)
+                if (widget.practiceRounds > 0)
                   Container(
                     padding: const EdgeInsets.only(bottom: 16),
                     child: Text(
@@ -313,50 +322,54 @@ class _ShootingScreenState extends State<ShootingScreen> {
             ),
           ),
           // Alt kısım (Butonlar)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Column(
             children: [
-              // Başlat/Durdur butonu
-              ElevatedButton(
-                onPressed: _toggleTimer,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isPreparationPhase ? Colors.orange : Colors.green,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Başlat/Durdur butonu
+                  ElevatedButton(
+                    onPressed: _toggleTimer,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isPreparationPhase ? Colors.orange : Colors.green,
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text(
+                      isRunning ? 'DURDUR' : 'BAŞLAT',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
-                child: Text(
-                  isRunning ? 'DURDUR' : 'BAŞLAT',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(width: 16),
+                  // Bitir butonu
+                  ElevatedButton(
+                    onPressed: _finishShot,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      'BİTİR',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(width: 16),
-              // Bitir butonu
-              ElevatedButton(
-                onPressed: _finishShot,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  'BİTİR',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              // Reset butonu
+              const SizedBox(height: 16),
+              // Sıfırla butonu
               ElevatedButton(
                 onPressed: widget.onReset,
                 style: ElevatedButton.styleFrom(
@@ -367,7 +380,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                   ),
                 ),
                 child: const Text(
-                  'ANA MENÜ',
+                  'SIFIRLA',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
