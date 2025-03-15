@@ -417,7 +417,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
                         ),
                         child: Text(
                           isRunning ? 'DURDUR' : 'BAŞLAT',
-                          style: const TextStyle(fontSize: 20),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                       ElevatedButton(
@@ -434,7 +437,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
                         ),
                         child: const Text(
                           'BİTİR',
-                          style: TextStyle(fontSize: 20),
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ],
@@ -455,7 +461,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
                     ),
                     child: const Text(
                       'SIFIRLA',
-                      style: TextStyle(fontSize: 20),
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
