@@ -125,11 +125,19 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
   void switchArcher() {
     if (isRunning && isShootingPhase) {
       if (isLeftArcherActive) {
-        leftArcherTimes.add(currentShotDuration);
-        archer1Shots++;
+        if (archer1Shots < totalShots) {
+          leftArcherTimes.add(currentShotDuration);
+          setState(() {
+            archer1Shots++;
+          });
+        }
       } else {
-        rightArcherTimes.add(currentShotDuration);
-        archer2Shots++;
+        if (archer2Shots < totalShots) {
+          rightArcherTimes.add(currentShotDuration);
+          setState(() {
+            archer2Shots++;
+          });
+        }
       }
       
       setState(() {
@@ -196,26 +204,46 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
 
             // Atış süresini kaydet
             if (isLeftArcherActive) {
-              leftArcherTimes.add(currentShotDuration);
-              setState(() {
-                archer1Shots++;
-              });
+              if (archer1Shots < totalShots) {
+                leftArcherTimes.add(currentShotDuration);
+                setState(() {
+                  archer1Shots++;
+                });
+              }
             } else {
-              rightArcherTimes.add(currentShotDuration);
-              setState(() {
-                archer2Shots++;
-              });
+              if (archer2Shots < totalShots) {
+                rightArcherTimes.add(currentShotDuration);
+                setState(() {
+                  archer2Shots++;
+                });
+              }
             }
 
             // Her iki yarışmacı da atışlarını tamamladı mı kontrol et
             _checkIfFinished();
 
-            // Eğer yarışma bitmemişse diğer yarışmacıya geç
+            // Eğer yarışma bitmemişse ve aktif yarışmacı atışlarını tamamlamamışsa diğer yarışmacıya geç
             if (isRunning) {
-              isLeftArcherActive = !isLeftArcherActive;
-              currentShotDuration = 0;
-              remainingTime = shootingTime;
-              _playSound('whistle');
+              bool canSwitchArcher = isLeftArcherActive ? 
+                archer1Shots < totalShots : archer2Shots < totalShots;
+              
+              if (canSwitchArcher) {
+                isLeftArcherActive = !isLeftArcherActive;
+                currentShotDuration = 0;
+                remainingTime = shootingTime;
+                _playSound('whistle');
+              } else {
+                // Aktif yarışmacı atışlarını tamamladı, diğer yarışmacı tamamlamadıysa ona geç
+                bool otherArcherCanShoot = isLeftArcherActive ? 
+                  archer2Shots < totalShots : archer1Shots < totalShots;
+                
+                if (otherArcherCanShoot) {
+                  isLeftArcherActive = !isLeftArcherActive;
+                  currentShotDuration = 0;
+                  remainingTime = shootingTime;
+                  _playSound('whistle');
+                }
+              }
             }
           }
         }
