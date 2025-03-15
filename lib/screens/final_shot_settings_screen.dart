@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class FinalShotSettingsScreen extends StatelessWidget {
+class FinalShotSettingsScreen extends StatefulWidget {
   final int shootingTime;
   final int totalShots;
   final Function(int) onShootingTimeChanged;
@@ -13,6 +14,44 @@ class FinalShotSettingsScreen extends StatelessWidget {
     required this.onShootingTimeChanged,
     required this.onTotalShotsChanged,
   });
+
+  @override
+  State<FinalShotSettingsScreen> createState() => _FinalShotSettingsScreenState();
+}
+
+class _FinalShotSettingsScreenState extends State<FinalShotSettingsScreen> {
+  late TextEditingController _shootingTimeController;
+  late TextEditingController _totalShotsController;
+
+  @override
+  void initState() {
+    super.initState();
+    _shootingTimeController = TextEditingController(text: widget.shootingTime.toString());
+    _totalShotsController = TextEditingController(text: widget.totalShots.toString());
+  }
+
+  @override
+  void dispose() {
+    _shootingTimeController.dispose();
+    _totalShotsController.dispose();
+    super.dispose();
+  }
+
+  void _updateShootingTime(String value) {
+    if (value.isEmpty) return;
+    final newValue = int.tryParse(value);
+    if (newValue != null && newValue >= 10) {
+      widget.onShootingTimeChanged(newValue);
+    }
+  }
+
+  void _updateTotalShots(String value) {
+    if (value.isEmpty) return;
+    final newValue = int.tryParse(value);
+    if (newValue != null && newValue >= 1) {
+      widget.onTotalShotsChanged(newValue);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,27 +69,18 @@ class FinalShotSettingsScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.remove),
-                  onPressed: () {
-                    if (shootingTime > 10) {
-                      onShootingTimeChanged(shootingTime - 1);
-                    }
-                  },
-                ),
-                Text(
-                  shootingTime.toString(),
-                  style: const TextStyle(fontSize: 20),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    onShootingTimeChanged(shootingTime + 1);
-                  },
-                ),
+            TextField(
+              controller: _shootingTimeController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
               ],
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Atış süresi',
+                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+              onChanged: _updateShootingTime,
             ),
             const SizedBox(height: 24),
             const Text(
@@ -58,27 +88,18 @@ class FinalShotSettingsScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.remove),
-                  onPressed: () {
-                    if (totalShots > 1) {
-                      onTotalShotsChanged(totalShots - 1);
-                    }
-                  },
-                ),
-                Text(
-                  totalShots.toString(),
-                  style: const TextStyle(fontSize: 20),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    onTotalShotsChanged(totalShots + 1);
-                  },
-                ),
+            TextField(
+              controller: _totalShotsController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
               ],
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Atış sayısı',
+                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+              onChanged: _updateTotalShots,
             ),
           ],
         ),
