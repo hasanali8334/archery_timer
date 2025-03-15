@@ -148,6 +148,13 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
           });
         }
       }
+
+      // Her iki yarışmacı da atışlarını tamamladı mı kontrol et
+      if (archer1Shots >= totalShots && archer2Shots >= totalShots) {
+        _playSound('whistle');
+        _resetScreen();
+        return;
+      }
       
       setState(() {
         isLeftArcherActive = !isLeftArcherActive;
