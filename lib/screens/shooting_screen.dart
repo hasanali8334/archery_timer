@@ -227,18 +227,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
     return seconds.toString();
   }
 
-  String _getCurrentShotInfo() {
-    String roundType = isPracticeRound ? 'DENEME' : 'YARIŞ';
-    String roundCount =
-        isPracticeRound
-            ? '${currentRound}/${widget.practiceRounds}'
-            : '${currentRound}/${widget.matchRounds}';
-    String setInfo = '${currentSet}. SET';
-    String shotInfo = '${currentShotInSet}. ATIŞ';
-
-    return '$roundType SERİSİ $roundCount\n$setInfo - $shotInfo';
-  }
-
   @override
   Widget build(BuildContext context) {
     Color backgroundColor = Colors.blue.shade700;
@@ -253,152 +241,63 @@ class _ShootingScreenState extends State<ShootingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (isPracticeRound && widget.practiceRounds > 0)
-            Container(
-              color: Colors.orange,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Text(
-                'DENEME ATIŞI',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // AB Grubu
-              AnimatedOpacity(
+          // Üst kısım (AB/CD göstergesi)
+          Container(
+            color: Colors.orange,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 300),
                 opacity: isABGroup ? 1.0 : 0.0,
-                child: Container(
-                  width: 200,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2,
-                    ),
-                  ),
-                  child: Text(
-                    'AB',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              // CD Grubu
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 300),
-                opacity: !isABGroup ? 1.0 : 0.0,
-                child: Container(
-                  width: 200,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2,
-                    ),
-                  ),
-                  child: Text(
-                    'CD',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              color:
-                  isPracticeRound
-                      ? Colors.orange.withOpacity(0.2)
-                      : Colors.green.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              _getCurrentShotInfo(),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 24,
-                color: isPracticeRound ? Colors.orange : Colors.green,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              color: isPreparationPhase ? Colors.orange : Colors.green,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              isPreparationPhase ? 'HAZIRLIK' : 'ATIŞ',
-              style: const TextStyle(
-                fontSize: 24,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(height: 40),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 20,
-                ),
-                decoration: BoxDecoration(
-                  color:
-                      !isPreparationPhase &&
-                              remainingTime <= 5 &&
-                              remainingTime > 0
-                          ? Colors.red
-                          : (!isPreparationPhase && remainingTime <= widget.warningTime
-                              ? Colors.orange
-                              : (isPreparationPhase
-                                  ? Colors.orange
-                                  : Colors.green)),
-                  borderRadius: BorderRadius.circular(10),
-                ),
                 child: Text(
-                  _formatTime(remainingTime),
-                  style: const TextStyle(
-                    fontSize: 120,
-                    fontWeight: FontWeight.bold,
+                  'AB',
+                  style: TextStyle(
                     color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-            ],
+            ),
           ),
-          const SizedBox(height: 40),
+          // Orta kısım (Süre göstergesi)
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Deneme atışı yazısı
+                if (isPracticeRound && widget.practiceRounds > 0)
+                  Container(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Text(
+                      'DENEME ATIŞI',
+                      style: TextStyle(
+                        color: Colors.orange,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                // Süre göstergesi
+                Container(
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isPreparationPhase ? Colors.orange : Colors.green,
+                  ),
+                  child: Text(
+                    _formatTime(remainingTime),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 72,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Alt kısım (Butonlar)
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
