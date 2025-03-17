@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'shot_report_screen.dart';
-import 'services/sound_service.dart';
-import 'screens/final_shot_settings_screen.dart';
+import '../shot_report_screen.dart';
+import '../services/sound_service.dart';
+import '../screens/final_shot_settings_screen.dart';
 
 class FinalShotScreen extends StatefulWidget {
   final SoundService soundService;
@@ -73,36 +73,37 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => FinalShotSettingsScreen(
-          shootingTime: shootingTime,
-          totalShots: totalShots,
-          archer1Name: archer1Name,
-          archer2Name: archer2Name,
-          onShootingTimeChanged: (value) {
-            setState(() {
-              shootingTime = value;
-            });
-            _saveSettings();
-          },
-          onTotalShotsChanged: (value) {
-            setState(() {
-              totalShots = value;
-            });
-            _saveSettings();
-          },
-          onArcher1NameChanged: (value) {
-            setState(() {
-              archer1Name = value;
-            });
-            _saveSettings();
-          },
-          onArcher2NameChanged: (value) {
-            setState(() {
-              archer2Name = value;
-            });
-            _saveSettings();
-          },
-        ),
+        builder:
+            (context) => FinalShotSettingsScreen(
+              shootingTime: shootingTime,
+              totalShots: totalShots,
+              archer1Name: archer1Name,
+              archer2Name: archer2Name,
+              onShootingTimeChanged: (value) {
+                setState(() {
+                  shootingTime = value;
+                });
+                _saveSettings();
+              },
+              onTotalShotsChanged: (value) {
+                setState(() {
+                  totalShots = value;
+                });
+                _saveSettings();
+              },
+              onArcher1NameChanged: (value) {
+                setState(() {
+                  archer1Name = value;
+                });
+                _saveSettings();
+              },
+              onArcher2NameChanged: (value) {
+                setState(() {
+                  archer2Name = value;
+                });
+                _saveSettings();
+              },
+            ),
       ),
     );
   }
@@ -132,7 +133,7 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
   void switchArcher() {
     if (isRunning && isShootingPhase) {
       _timer?.cancel();
-      
+
       if (isLeftArcherActive) {
         if (archer1Shots < totalShots) {
           leftArcherTimes.add(currentShotDuration);
@@ -155,13 +156,13 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
         _resetScreen();
         return;
       }
-      
+
       setState(() {
         isLeftArcherActive = !isLeftArcherActive;
         currentShotDuration = 0;
         remainingTime = shootingTime;
       });
-      
+
       _startCountdown(); // Yeni süre için geri sayımı başlat
     }
   }
@@ -198,7 +199,7 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
           remainingTime--;
           if (isShootingPhase) {
             currentShotDuration++;
-            
+
             // Uyarı süresi kontrolü
             if (remainingTime <= warningTime) {
               _playSound('beep');
@@ -243,9 +244,11 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
 
             // Eğer yarışma bitmemişse ve aktif yarışmacı atışlarını tamamlamamışsa diğer yarışmacıya geç
             if (isRunning) {
-              bool canSwitchArcher = isLeftArcherActive ? 
-                archer1Shots < totalShots : archer2Shots < totalShots;
-              
+              bool canSwitchArcher =
+                  isLeftArcherActive
+                      ? archer1Shots < totalShots
+                      : archer2Shots < totalShots;
+
               if (canSwitchArcher) {
                 isLeftArcherActive = !isLeftArcherActive;
                 currentShotDuration = 0;
@@ -253,9 +256,11 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
                 _startCountdown(); // Yeni süre için geri sayımı başlat
               } else {
                 // Aktif yarışmacı atışlarını tamamladı, diğer yarışmacı tamamlamadıysa ona geç
-                bool otherArcherCanShoot = isLeftArcherActive ? 
-                  archer2Shots < totalShots : archer1Shots < totalShots;
-                
+                bool otherArcherCanShoot =
+                    isLeftArcherActive
+                        ? archer2Shots < totalShots
+                        : archer1Shots < totalShots;
+
                 if (otherArcherCanShoot) {
                   isLeftArcherActive = !isLeftArcherActive;
                   currentShotDuration = 0;
@@ -274,10 +279,11 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ShotReportScreen(
-          leftArcherTimes: leftArcherTimes,
-          rightArcherTimes: rightArcherTimes,
-        ),
+        builder:
+            (context) => ShotReportScreen(
+              leftArcherTimes: leftArcherTimes,
+              rightArcherTimes: rightArcherTimes,
+            ),
       ),
     );
   }
@@ -321,8 +327,9 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
                       curve: Curves.easeInOut,
                       width: isLeftArcherActive ? 180 : 150,
                       height: isLeftArcherActive ? 220 : 180,
-                      transform: Matrix4.identity()
-                        ..translate(0.0, isLeftArcherActive ? -20.0 : 0.0),
+                      transform:
+                          Matrix4.identity()
+                            ..translate(0.0, isLeftArcherActive ? -20.0 : 0.0),
                       decoration: BoxDecoration(
                         color: isLeftArcherActive ? Colors.green : Colors.red,
                         borderRadius: BorderRadius.circular(16),
@@ -370,8 +377,9 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
                       curve: Curves.easeInOut,
                       width: !isLeftArcherActive ? 180 : 150,
                       height: !isLeftArcherActive ? 220 : 180,
-                      transform: Matrix4.identity()
-                        ..translate(0.0, !isLeftArcherActive ? -20.0 : 0.0),
+                      transform:
+                          Matrix4.identity()
+                            ..translate(0.0, !isLeftArcherActive ? -20.0 : 0.0),
                       decoration: BoxDecoration(
                         color: !isLeftArcherActive ? Colors.green : Colors.red,
                         borderRadius: BorderRadius.circular(16),
@@ -454,7 +462,10 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
                                   onPressed: () => switchArcher(),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 32,
+                                      vertical: 16,
+                                    ),
                                   ),
                                   child: const Text(
                                     'DİĞER YARIŞMACIYA GEÇ',

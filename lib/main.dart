@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'models/settings.dart';
-import 'screens/shooting_screen.dart';
+import 'models/shooting_style.dart';
 import 'screens/settings_screen.dart';
+import 'screens/shooting_screen.dart';
 import 'screens/final_shot_screen.dart';
 import 'services/sound_service.dart';
-import 'models/shooting_style.dart';
 
 void main() {
   runApp(const MyApp());
@@ -71,7 +70,7 @@ class _MainScreenState extends State<MainScreen> {
       _warningTime = prefs.getInt('warningTime') ?? 30;
       _practiceRounds = prefs.getInt('practiceRounds') ?? 2;
       _matchRounds = prefs.getInt('matchRounds') ?? 12;
-      _shootingStyle = ShootingStyle.values[prefs.getInt('shootingStyle') ?? 1];
+      _shootingStyle = ShootingStyle.values[prefs.getInt('shootingStyle') ?? 0];
     });
   }
 
@@ -85,17 +84,6 @@ class _MainScreenState extends State<MainScreen> {
     await prefs.setInt('shootingStyle', _shootingStyle.index);
   }
 
-  void _onSettingsChanged(Settings settings) {
-    setState(() {
-      _shootingStyle = settings.shootingStyle;
-      _practiceRounds = settings.practiceRounds;
-      _preparationTime = settings.preparationTime;
-      _shootingTime = settings.shootingTime;
-      _warningTime = settings.warningTime;
-      _matchRounds = settings.matchRounds;
-    });
-  }
-
   void _onReset() {
     setState(() {
       _isShootingStarted = false;
@@ -106,59 +94,6 @@ class _MainScreenState extends State<MainScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const MainScreen()),
-    );
-  }
-
-  void _showSettingsScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => SettingsScreen(
-              preparationTime: _preparationTime,
-              shootingTime: _shootingTime,
-              warningTime: _warningTime,
-              practiceRounds: _practiceRounds,
-              matchRounds: _matchRounds,
-              shootingStyle: _shootingStyle,
-              onPreparationTimeChanged: (value) {
-                setState(() {
-                  _preparationTime = value;
-                });
-                _saveSettings();
-              },
-              onShootingTimeChanged: (value) {
-                setState(() {
-                  _shootingTime = value;
-                });
-                _saveSettings();
-              },
-              onWarningTimeChanged: (value) {
-                setState(() {
-                  _warningTime = value;
-                });
-                _saveSettings();
-              },
-              onPracticeRoundsChanged: (value) {
-                setState(() {
-                  _practiceRounds = value;
-                });
-                _saveSettings();
-              },
-              onMatchRoundsChanged: (value) {
-                setState(() {
-                  _matchRounds = value;
-                });
-                _saveSettings();
-              },
-              onShootingStyleChanged: (value) {
-                setState(() {
-                  _shootingStyle = value;
-                });
-                _saveSettings();
-              },
-            ),
-      ),
     );
   }
 
@@ -191,30 +126,42 @@ class _MainScreenState extends State<MainScreen> {
                         practiceRounds: _practiceRounds,
                         matchRounds: _matchRounds,
                         shootingStyle: _shootingStyle,
-                        onPreparationTimeChanged: (value) => setState(() {
-                          _preparationTime = value;
+                        onPreparationTimeChanged: (value) {
+                          setState(() {
+                            _preparationTime = value;
+                          });
                           _saveSettings();
-                        }),
-                        onShootingTimeChanged: (value) => setState(() {
-                          _shootingTime = value;
+                        },
+                        onShootingTimeChanged: (value) {
+                          setState(() {
+                            _shootingTime = value;
+                          });
                           _saveSettings();
-                        }),
-                        onWarningTimeChanged: (value) => setState(() {
-                          _warningTime = value;
+                        },
+                        onWarningTimeChanged: (value) {
+                          setState(() {
+                            _warningTime = value;
+                          });
                           _saveSettings();
-                        }),
-                        onPracticeRoundsChanged: (value) => setState(() {
-                          _practiceRounds = value;
+                        },
+                        onPracticeRoundsChanged: (value) {
+                          setState(() {
+                            _practiceRounds = value;
+                          });
                           _saveSettings();
-                        }),
-                        onMatchRoundsChanged: (value) => setState(() {
-                          _matchRounds = value;
+                        },
+                        onMatchRoundsChanged: (value) {
+                          setState(() {
+                            _matchRounds = value;
+                          });
                           _saveSettings();
-                        }),
-                        onShootingStyleChanged: (value) => setState(() {
-                          _shootingStyle = value;
+                        },
+                        onShootingStyleChanged: (value) {
+                          setState(() {
+                            _shootingStyle = value;
+                          });
                           _saveSettings();
-                        }),
+                        },
                       ),
                     ),
                   );

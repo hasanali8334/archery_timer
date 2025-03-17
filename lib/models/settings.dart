@@ -1,4 +1,4 @@
-import '../enums/shooting_style.dart';
+import 'shooting_style.dart';
 
 class Settings {
   final int preparationTime;
