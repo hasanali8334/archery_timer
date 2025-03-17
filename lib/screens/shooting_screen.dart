@@ -138,6 +138,15 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
   void _finishShot() {
     _stopTimer();
+
+    // Yarışma bitti mi kontrolü
+    if (!isPracticeRound && currentSet >= widget.matchRounds) {
+      setState(() {
+        isMatchFinished = true;
+      });
+      return;
+    }
+
     setState(() {
       isPreparationPhase = true;
       remainingTime = widget.preparationTime;
@@ -158,12 +167,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
       // Atış bitti mi kontrolü
       if (currentShotInSet >= 2) {  // Her sette 2 atış: 1 AB + 1 CD
-        // Yarışma bitti mi kontrolü
-        if (!isPracticeRound && currentSet >= widget.matchRounds) {
-          isMatchFinished = true;
-          return;
-        }
-
         // Yeni set başlat
         currentShotInSet = 1;
         currentSet++;
