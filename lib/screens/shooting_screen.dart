@@ -45,6 +45,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
   bool isPaused = false;
   int currentShotDuration = 0;
   int _practiceRoundCount = 0;
+  bool isMatchFinished = false;
 
   @override
   void initState() {
@@ -53,6 +54,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
     _updateTargetGroup();
     isPaused = false;
     _practiceRoundCount = 0;
+    isMatchFinished = false;
   }
 
   @override
@@ -190,6 +192,12 @@ class _ShootingScreenState extends State<ShootingScreen> {
           }
         }
       }
+
+      // Yarışma setleri tamamlandıysa bitir
+      if (!isPracticeRound && currentSet > widget.matchRounds) {
+        isMatchFinished = true;
+        _stopTimer();
+      }
     });
   }
 
@@ -285,27 +293,23 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
   // Sonraki atış bilgisini döndürür
   String _getNextShotInfo() {
-    String groupText = isABGroup ? 'AB' : 'CD';
-    String setInfo = '${currentSet}. Set';
-    String shotInfo = '${currentShotInSet}. Atış';
-    return 'Sonraki Atış: $groupText Grubu - $setInfo $shotInfo';
+    if (isMatchFinished) {
+      return 'YARIŞMA BİTTİ';
+    }
+    return '${isABGroup ? 'AB' : 'CD'} GRUBU\n${currentSet}. SET - ${currentShotInSet}. ATIŞ';
   }
 
   @override
   Widget build(BuildContext context) {
     // Timer arkaplan rengi
-    Color timerColor =
-        isPreparationPhase
-            ? Colors.orange
-            : (remainingTime <= widget.warningTime
-                ? Colors.orange
-                : Colors.green);
+    Color timerColor = isPreparationPhase
+        ? Colors.orange
+        : (remainingTime <= widget.warningTime ? Colors.orange : Colors.green);
 
     return Scaffold(
       backgroundColor: Colors.blue.shade700,
       body: SafeArea(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
             // Üst kısım (AB/CD göstergesi)
             Container(
@@ -315,7 +319,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                   duration: const Duration(milliseconds: 300),
                   opacity: 1.0,
                   child: Text(
-                    isABGroup ? 'AB' : 'CD',
+                    isMatchFinished ? 'BİTTİ' : (isABGroup ? 'AB' : 'CD'),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 72,
@@ -326,7 +330,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
               ),
             ),
             // Deneme/Yarış serisi göstergesi
-            if (widget.practiceRounds > 0)
+            if (widget.practiceRounds > 0 && !isMatchFinished)
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -403,10 +407,9 @@ class _ShootingScreenState extends State<ShootingScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: isRunning ? _stopTimer : _startTimer,
+                        onPressed: isMatchFinished ? null : (isRunning ? _stopTimer : _startTimer),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              isRunning ? Colors.orange : Colors.green,
+                          backgroundColor: isRunning ? Colors.orange : Colors.green,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 32,
                             vertical: 16,
@@ -424,7 +427,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: _finishShot,
+                        onPressed: isMatchFinished ? null : _finishShot,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
                           padding: const EdgeInsets.symmetric(
