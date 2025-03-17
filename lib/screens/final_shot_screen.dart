@@ -294,212 +294,227 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
+  void _stopTimer() {
+    _timer?.cancel();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Final Atışı'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: widget.onReset,
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: _showSettingsScreen,
+    return WillPopScope(
+      onWillPop: () async {
+        _stopTimer();
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Final Atışı'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              _stopTimer();
+              Navigator.pop(context);
+            },
           ),
-        ],
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Üst kısım: Yarışmacı kartları
-              Expanded(
-                flex: 2,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Sol yarışmacı kartı
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      width: isLeftArcherActive ? 180 : 150,
-                      height: isLeftArcherActive ? 220 : 180,
-                      transform:
-                          Matrix4.identity()
-                            ..translate(0.0, isLeftArcherActive ? -20.0 : 0.0),
-                      decoration: BoxDecoration(
-                        color: isLeftArcherActive ? Colors.green : Colors.red,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () => selectArcher(true),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: _showSettingsScreen,
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                // Üst kısım: Yarışmacı kartları
+                Expanded(
+                  flex: 2,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Sol yarışmacı kartı
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        width: isLeftArcherActive ? 180 : 150,
+                        height: isLeftArcherActive ? 220 : 180,
+                        transform:
+                            Matrix4.identity()
+                              ..translate(0.0, isLeftArcherActive ? -20.0 : 0.0),
+                        decoration: BoxDecoration(
+                          color: isLeftArcherActive ? Colors.green : Colors.red,
                           borderRadius: BorderRadius.circular(16),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.person,
-                                size: isLeftArcherActive ? 56 : 48,
-                                color: Colors.white,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                archer1Name,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: isLeftArcherActive ? 22 : 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Atış: $archer1Shots/$totalShots',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: isLeftArcherActive ? 18 : 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
-                      ),
-                    ),
-                    // Sağ yarışmacı kartı
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      width: !isLeftArcherActive ? 180 : 150,
-                      height: !isLeftArcherActive ? 220 : 180,
-                      transform:
-                          Matrix4.identity()
-                            ..translate(0.0, !isLeftArcherActive ? -20.0 : 0.0),
-                      decoration: BoxDecoration(
-                        color: !isLeftArcherActive ? Colors.green : Colors.red,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () => selectArcher(false),
-                          borderRadius: BorderRadius.circular(16),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.person,
-                                size: !isLeftArcherActive ? 56 : 48,
-                                color: Colors.white,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                archer2Name,
-                                style: TextStyle(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => selectArcher(true),
+                            borderRadius: BorderRadius.circular(16),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.person,
+                                  size: isLeftArcherActive ? 56 : 48,
                                   color: Colors.white,
-                                  fontSize: !isLeftArcherActive ? 22 : 20,
-                                  fontWeight: FontWeight.bold,
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Atış: $archer2Shots/$totalShots',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: !isLeftArcherActive ? 18 : 16,
-                                  fontWeight: FontWeight.bold,
+                                const SizedBox(height: 8),
+                                Text(
+                                  archer1Name,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: isLeftArcherActive ? 22 : 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Orta kısım: Timer veya başlangıç mesajı
-              Expanded(
-                flex: 2,
-                child: Card(
-                  color: Colors.orange,
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (!isRunning && !isArcherSelected)
-                          const Text(
-                            'Başlamak için\nyarışmacı seçin',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Atış: $archer1Shots/$totalShots',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: isLeftArcherActive ? 18 : 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
-                          )
-                        else
-                          Column(
-                            children: [
-                              Text(
-                                formatTime(remainingTime),
-                                style: const TextStyle(
+                          ),
+                        ),
+                      ),
+                      // Sağ yarışmacı kartı
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        width: !isLeftArcherActive ? 180 : 150,
+                        height: !isLeftArcherActive ? 220 : 180,
+                        transform:
+                            Matrix4.identity()
+                              ..translate(0.0, !isLeftArcherActive ? -20.0 : 0.0),
+                        decoration: BoxDecoration(
+                          color: !isLeftArcherActive ? Colors.green : Colors.red,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => selectArcher(false),
+                            borderRadius: BorderRadius.circular(16),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.person,
+                                  size: !isLeftArcherActive ? 56 : 48,
                                   color: Colors.white,
-                                  fontSize: 72,
-                                  fontWeight: FontWeight.bold,
                                 ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  archer2Name,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: !isLeftArcherActive ? 22 : 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Atış: $archer2Shots/$totalShots',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: !isLeftArcherActive ? 18 : 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Orta kısım: Timer veya başlangıç mesajı
+                Expanded(
+                  flex: 2,
+                  child: Card(
+                    color: Colors.orange,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (!isRunning && !isArcherSelected)
+                            const Text(
+                              'Başlamak için\nyarışmacı seçin',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
                               ),
-                              const SizedBox(height: 16),
-                              if (isRunning && isShootingPhase)
-                                ElevatedButton(
-                                  onPressed: () => switchArcher(),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 32,
-                                      vertical: 16,
+                            )
+                          else
+                            Column(
+                              children: [
+                                Text(
+                                  formatTime(remainingTime),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 72,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                if (isRunning && isShootingPhase)
+                                  ElevatedButton(
+                                    onPressed: () => switchArcher(),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 32,
+                                        vertical: 16,
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'DİĞER YARIŞMACIYA GEÇ',
+                                      style: TextStyle(fontSize: 20),
                                     ),
                                   ),
-                                  child: const Text(
-                                    'DİĞER YARIŞMACIYA GEÇ',
-                                    style: TextStyle(fontSize: 20),
-                                  ),
-                                ),
-                            ],
-                          ),
-                      ],
+                              ],
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              // Alt kısım: Sıfırla butonu
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: widget.onReset,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: const Text(
-                    'Sıfırla',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                const SizedBox(height: 16),
+                // Alt kısım: Sıfırla butonu
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: widget.onReset,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: const Text(
+                      'Sıfırla',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
