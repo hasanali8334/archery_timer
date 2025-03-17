@@ -176,7 +176,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
         case ShootingStyle.alternating:
           // Dönüşümsüz stil: Her sette AB ve CD sırası aynı
-          if (currentShotInSet >= 2) {
+          if (currentShotInSet >= widget.shotsPerSet) {
             // Set artmadan önce kontrol
             if (!isPracticeRound && currentSet >= widget.matchRounds) {
               isMatchFinished = true;
@@ -187,13 +187,15 @@ class _ShootingScreenState extends State<ShootingScreen> {
             isABGroup = true;
           } else {
             currentShotInSet++;
-            isABGroup = false; // AB'den CD'ye geç
+            if (currentShotInSet > widget.shotsPerSet / 2) {
+              isABGroup = false; // AB'den CD'ye geç
+            }
           }
           break;
 
         case ShootingStyle.rotating:
           // Dönüşümlü stil: Her sette AB ve CD sırası değişiyor
-          if (currentShotInSet >= 2) {
+          if (currentShotInSet >= widget.shotsPerSet) {
             // Set artmadan önce kontrol
             if (!isPracticeRound && currentSet >= widget.matchRounds) {
               isMatchFinished = true;
@@ -204,7 +206,9 @@ class _ShootingScreenState extends State<ShootingScreen> {
             isABGroup = currentSet % 2 == 1; // Tek setlerde AB, çift setlerde CD başlar
           } else {
             currentShotInSet++;
-            isABGroup = !isABGroup; // Grupları değiştir
+            if (currentShotInSet > widget.shotsPerSet / 2) {
+              isABGroup = !isABGroup; // Grupları değiştir
+            }
           }
           break;
       }
