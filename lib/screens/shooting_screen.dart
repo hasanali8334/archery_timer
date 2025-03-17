@@ -139,69 +139,52 @@ class _ShootingScreenState extends State<ShootingScreen> {
   void _finishShot() {
     _stopTimer();
 
-    print('DEBUG - Önceki durum:');
-    print('Set: $currentSet / ${widget.matchRounds}');
-    print('Atış: $currentShotInSet / 2');
-    print('Grup: ${isABGroup ? "AB" : "CD"}');
-    print('Deneme: $isPracticeRound');
-
-    // Yarışma bitti mi kontrolü
-    if (!isPracticeRound && currentSet >= widget.matchRounds && currentShotInSet >= 2) {
-      setState(() {
-        isMatchFinished = true;
-      });
-      print('DEBUG - Yarışma bitti!');
-      return;
-    }
-
     setState(() {
       isPreparationPhase = true;
       remainingTime = widget.preparationTime;
 
-      // Deneme atışları tamamlandıysa yarışma atışlarına geç
-      if (widget.practiceRounds > 0) {
-        if (currentSet > _practiceRoundCount && isPracticeRound) {
-          _practiceRoundCount++;
-          if (_practiceRoundCount >= widget.practiceRounds) {
-            isPracticeRound = false;
-            currentSet = 1;
-            currentShotInSet = 1;
-            isABGroup = true;
-            print('DEBUG - Deneme atışları bitti!');
-            return;
-          }
-        }
-      }
-
-      // Atış bitti mi kontrolü
-      if (currentShotInSet >= 2) {  // Her sette 2 atış: 1 AB + 1 CD
-        // Yeni set başlat
-        currentShotInSet = 1;
-        currentSet++;
-
-        // Atış stiline göre başlangıç grubunu belirle
-        switch (widget.shootingStyle) {
-          case ShootingStyle.standard:
-          case ShootingStyle.alternating:
-            isABGroup = true;  // Her sette AB başlar
-            break;
-          case ShootingStyle.rotating:
-            isABGroup = currentSet % 2 == 1;  // Tek setlerde AB, çift setlerde CD başlar
-            break;
-        }
-      } else {
-        // Sonraki atışa geç
+      // Sonraki atışa geç
+      if (currentShotInSet < 2) {
         currentShotInSet++;
         isABGroup = !isABGroup;  // AB -> CD veya CD -> AB
+        return;
+      }
+
+      // Set bitti, sıfırla
+      currentShotInSet = 1;
+      isABGroup = true;
+
+      // Deneme atışları kontrolü
+      if (isPracticeRound) {
+        _practiceRoundCount++;
+        if (_practiceRoundCount >= widget.practiceRounds) {
+          isPracticeRound = false;
+          currentSet = 1;
+          return;
+        }
+        currentSet++;
+        return;
+      }
+
+      // Yarışma seti kontrolü
+      if (currentSet >= widget.matchRounds) {
+        isMatchFinished = true;
+        return;
+      }
+
+      // Sonraki sete geç
+      currentSet++;
+
+      // Atış stiline göre başlangıç grubunu belirle
+      switch (widget.shootingStyle) {
+        case ShootingStyle.rotating:
+          isABGroup = currentSet % 2 == 1;  // Tek setlerde AB, çift setlerde CD başlar
+          break;
+        default:
+          isABGroup = true;  // Her sette AB başlar
+          break;
       }
     });
-
-    print('DEBUG - Sonraki durum:');
-    print('Set: $currentSet / ${widget.matchRounds}');
-    print('Atış: $currentShotInSet / 2');
-    print('Grup: ${isABGroup ? "AB" : "CD"}');
-    print('Deneme: $isPracticeRound');
-    print('-------------------');
   }
 
   void finishShot() {
