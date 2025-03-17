@@ -326,7 +326,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: isRunning ? _stopTimer : _startTimer,
+                        onPressed: isMatchFinished ? null : (isRunning ? _stopTimer : _startTimer),
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                               isRunning ? Colors.red : Colors.green,
@@ -344,7 +344,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: isRunning ? null : _finishShot,
+                        onPressed: isMatchFinished || isRunning ? null : _finishShot,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           padding: const EdgeInsets.symmetric(
