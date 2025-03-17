@@ -148,6 +148,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
           // Normal stil: Her sette AB ve CD sırayla atar
           if (currentShotInSet >= widget.shotsPerSet) {
             currentShotInSet = 1;
+            if (currentSet >= widget.matchRounds && !isPracticeRound) {
+              isMatchFinished = true;
+              return;
+            }
             currentSet++;
             isABGroup = true;
           } else {
@@ -159,6 +163,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
           // Dönüşümsüz stil: Her sette AB ve CD sırası aynı
           if (currentShotInSet >= 2) {
             currentShotInSet = 1;
+            if (currentSet >= widget.matchRounds && !isPracticeRound) {
+              isMatchFinished = true;
+              return;
+            }
             currentSet++;
             isABGroup = true;
           } else {
@@ -171,6 +179,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
           // Dönüşümlü stil: Her sette AB ve CD sırası değişiyor
           if (currentShotInSet >= 2) {
             currentShotInSet = 1;
+            if (currentSet >= widget.matchRounds && !isPracticeRound) {
+              isMatchFinished = true;
+              return;
+            }
             currentSet++;
             isABGroup = currentSet % 2 == 1; // Tek setlerde AB, çift setlerde CD başlar
           } else {
@@ -191,12 +203,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
             isABGroup = true;
           }
         }
-      }
-
-      // Yarışma setleri tamamlandıysa bitir
-      if (!isPracticeRound && currentSet > widget.matchRounds) {
-        isMatchFinished = true;
-        _stopTimer();
       }
     });
   }
