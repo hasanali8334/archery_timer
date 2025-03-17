@@ -156,58 +156,32 @@ class _ShootingScreenState extends State<ShootingScreen> {
         }
       }
 
-      // Atış stili kontrolü
-      switch (widget.shootingStyle) {
-        case ShootingStyle.standard:
-          // Normal stil: Her sette AB ve CD sırayla atar
-          if (currentShotInSet >= 2) {  // Her sette 2 atış: 1 AB + 1 CD
-            // Set artmadan önce kontrol
-            if (!isPracticeRound && currentSet >= widget.matchRounds) {
-              isMatchFinished = true;
-              return;
-            }
-            currentShotInSet = 1;
-            currentSet++;
-            isABGroup = true;
-          } else {
-            currentShotInSet++;
-            isABGroup = false;  // AB'den CD'ye geç
-          }
-          break;
+      // Atış bitti mi kontrolü
+      if (currentShotInSet >= 2) {  // Her sette 2 atış: 1 AB + 1 CD
+        // Yarışma bitti mi kontrolü
+        if (!isPracticeRound && currentSet >= widget.matchRounds) {
+          isMatchFinished = true;
+          return;
+        }
 
-        case ShootingStyle.alternating:
-          // Dönüşümsüz stil: Her sette AB ve CD sırası aynı
-          if (currentShotInSet >= 2) {  // Her sette 2 atış: 1 AB + 1 CD
-            // Set artmadan önce kontrol
-            if (!isPracticeRound && currentSet >= widget.matchRounds) {
-              isMatchFinished = true;
-              return;
-            }
-            currentShotInSet = 1;
-            currentSet++;
-            isABGroup = true;
-          } else {
-            currentShotInSet++;
-            isABGroup = false;  // AB'den CD'ye geç
-          }
-          break;
+        // Yeni set başlat
+        currentShotInSet = 1;
+        currentSet++;
 
-        case ShootingStyle.rotating:
-          // Dönüşümlü stil: Her sette AB ve CD sırası değişiyor
-          if (currentShotInSet >= 2) {  // Her sette 2 atış: 1 AB + 1 CD
-            // Set artmadan önce kontrol
-            if (!isPracticeRound && currentSet >= widget.matchRounds) {
-              isMatchFinished = true;
-              return;
-            }
-            currentShotInSet = 1;
-            currentSet++;
+        // Atış stiline göre başlangıç grubunu belirle
+        switch (widget.shootingStyle) {
+          case ShootingStyle.standard:
+          case ShootingStyle.alternating:
+            isABGroup = true;  // Her sette AB başlar
+            break;
+          case ShootingStyle.rotating:
             isABGroup = currentSet % 2 == 1;  // Tek setlerde AB, çift setlerde CD başlar
-          } else {
-            currentShotInSet++;
-            isABGroup = !isABGroup;  // Grupları değiştir
-          }
-          break;
+            break;
+        }
+      } else {
+        // Sonraki atışa geç
+        currentShotInSet++;
+        isABGroup = !isABGroup;  // AB -> CD veya CD -> AB
       }
     });
   }
