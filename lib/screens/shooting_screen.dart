@@ -138,15 +138,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
   void _finishShot() {
     _stopTimer();
-
-    // Yarışma bitti mi kontrolü
-    if (!isPracticeRound && currentSet > widget.matchRounds) {
-      setState(() {
-        isMatchFinished = true;
-      });
-      return;
-    }
-
     setState(() {
       isPreparationPhase = true;
       remainingTime = widget.preparationTime;
@@ -170,6 +161,11 @@ class _ShootingScreenState extends State<ShootingScreen> {
         case ShootingStyle.standard:
           // Normal stil: Her sette AB ve CD sırayla atar
           if (currentShotInSet >= widget.shotsPerSet) {
+            // Set artmadan önce kontrol
+            if (!isPracticeRound && currentSet >= widget.matchRounds) {
+              isMatchFinished = true;
+              return;
+            }
             currentShotInSet = 1;
             currentSet++;
             isABGroup = true;
@@ -181,6 +177,11 @@ class _ShootingScreenState extends State<ShootingScreen> {
         case ShootingStyle.alternating:
           // Dönüşümsüz stil: Her sette AB ve CD sırası aynı
           if (currentShotInSet >= 2) {
+            // Set artmadan önce kontrol
+            if (!isPracticeRound && currentSet >= widget.matchRounds) {
+              isMatchFinished = true;
+              return;
+            }
             currentShotInSet = 1;
             currentSet++;
             isABGroup = true;
@@ -193,6 +194,11 @@ class _ShootingScreenState extends State<ShootingScreen> {
         case ShootingStyle.rotating:
           // Dönüşümlü stil: Her sette AB ve CD sırası değişiyor
           if (currentShotInSet >= 2) {
+            // Set artmadan önce kontrol
+            if (!isPracticeRound && currentSet >= widget.matchRounds) {
+              isMatchFinished = true;
+              return;
+            }
             currentShotInSet = 1;
             currentSet++;
             isABGroup = currentSet % 2 == 1; // Tek setlerde AB, çift setlerde CD başlar
