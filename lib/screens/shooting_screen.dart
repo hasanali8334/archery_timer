@@ -139,11 +139,18 @@ class _ShootingScreenState extends State<ShootingScreen> {
   void _finishShot() {
     _stopTimer();
 
+    print('DEBUG - Önceki durum:');
+    print('Set: $currentSet / ${widget.matchRounds}');
+    print('Atış: $currentShotInSet / 2');
+    print('Grup: ${isABGroup ? "AB" : "CD"}');
+    print('Deneme: $isPracticeRound');
+
     // Yarışma bitti mi kontrolü
-    if (!isPracticeRound && currentSet >= widget.matchRounds) {
+    if (!isPracticeRound && currentSet >= widget.matchRounds && currentShotInSet >= 2) {
       setState(() {
         isMatchFinished = true;
       });
+      print('DEBUG - Yarışma bitti!');
       return;
     }
 
@@ -160,6 +167,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
             currentSet = 1;
             currentShotInSet = 1;
             isABGroup = true;
+            print('DEBUG - Deneme atışları bitti!');
             return;
           }
         }
@@ -187,6 +195,13 @@ class _ShootingScreenState extends State<ShootingScreen> {
         isABGroup = !isABGroup;  // AB -> CD veya CD -> AB
       }
     });
+
+    print('DEBUG - Sonraki durum:');
+    print('Set: $currentSet / ${widget.matchRounds}');
+    print('Atış: $currentShotInSet / 2');
+    print('Grup: ${isABGroup ? "AB" : "CD"}');
+    print('Deneme: $isPracticeRound');
+    print('-------------------');
   }
 
   void finishShot() {
