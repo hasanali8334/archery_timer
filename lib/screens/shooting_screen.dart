@@ -160,7 +160,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
       switch (widget.shootingStyle) {
         case ShootingStyle.standard:
           // Normal stil: Her sette AB ve CD sırayla atar
-          if (currentShotInSet >= widget.shotsPerSet) {
+          if (currentShotInSet >= 2) {  // Her sette 2 atış: 1 AB + 1 CD
             // Set artmadan önce kontrol
             if (!isPracticeRound && currentSet >= widget.matchRounds) {
               isMatchFinished = true;
@@ -171,12 +171,13 @@ class _ShootingScreenState extends State<ShootingScreen> {
             isABGroup = true;
           } else {
             currentShotInSet++;
+            isABGroup = false;  // AB'den CD'ye geç
           }
           break;
 
         case ShootingStyle.alternating:
           // Dönüşümsüz stil: Her sette AB ve CD sırası aynı
-          if (currentShotInSet >= widget.shotsPerSet) {
+          if (currentShotInSet >= 2) {  // Her sette 2 atış: 1 AB + 1 CD
             // Set artmadan önce kontrol
             if (!isPracticeRound && currentSet >= widget.matchRounds) {
               isMatchFinished = true;
@@ -187,15 +188,13 @@ class _ShootingScreenState extends State<ShootingScreen> {
             isABGroup = true;
           } else {
             currentShotInSet++;
-            if (currentShotInSet > widget.shotsPerSet / 2) {
-              isABGroup = false; // AB'den CD'ye geç
-            }
+            isABGroup = false;  // AB'den CD'ye geç
           }
           break;
 
         case ShootingStyle.rotating:
           // Dönüşümlü stil: Her sette AB ve CD sırası değişiyor
-          if (currentShotInSet >= widget.shotsPerSet) {
+          if (currentShotInSet >= 2) {  // Her sette 2 atış: 1 AB + 1 CD
             // Set artmadan önce kontrol
             if (!isPracticeRound && currentSet >= widget.matchRounds) {
               isMatchFinished = true;
@@ -203,12 +202,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
             }
             currentShotInSet = 1;
             currentSet++;
-            isABGroup = currentSet % 2 == 1; // Tek setlerde AB, çift setlerde CD başlar
+            isABGroup = currentSet % 2 == 1;  // Tek setlerde AB, çift setlerde CD başlar
           } else {
             currentShotInSet++;
-            if (currentShotInSet > widget.shotsPerSet / 2) {
-              isABGroup = !isABGroup; // Grupları değiştir
-            }
+            isABGroup = !isABGroup;  // Grupları değiştir
           }
           break;
       }
