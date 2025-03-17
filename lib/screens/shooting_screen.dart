@@ -147,7 +147,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
       // Sonraki atışa geç
       if (currentShotInSet < 2) {
         currentShotInSet++;
-        isABGroup = !isABGroup;
+        // Sadece dönüşümlü atışta CD'ye geç
+        if (widget.shootingStyle == ShootingStyle.rotating) {
+          isABGroup = !isABGroup;
+        }
         print('DEBUG - Sonraki atışa geçildi');
         return;
       }
