@@ -46,7 +46,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
   @override
   void initState() {
     super.initState();
-    // Deneme atışı varsa deneme ile başla
+    // Deneme atışı varsa deneme ile başla, yoksa yarışma ile başla
     isPracticeRound = widget.practiceRounds > 0;
     currentSet = 1;
     currentShotInSet = 1;
@@ -157,7 +157,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
       isABGroup = true;
 
       // Set kontrolü
-      if (isPracticeRound) {
+      if (isPracticeRound && widget.practiceRounds > 0) {
         // Deneme atışları
         if (currentSet >= widget.practiceRounds) {
           // Deneme bitti, yarışmaya geç
