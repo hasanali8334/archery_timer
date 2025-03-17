@@ -50,6 +50,12 @@ class _ShootingScreenState extends State<ShootingScreen> {
   @override
   void initState() {
     super.initState();
+    // Deneme atışı yoksa direkt yarışma başlar
+    isPracticeRound = widget.practiceRounds > 0;
+    currentSet = 1;
+    currentShotInSet = 1;
+    isABGroup = true;
+    isPreparationPhase = true;
     remainingTime = widget.preparationTime;
     _updateTargetGroup();
     isPaused = false;
