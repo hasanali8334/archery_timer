@@ -37,8 +37,8 @@ class _ShootingScreenState extends State<ShootingScreen> {
   bool isPreparationPhase = true;
   bool isABGroup = true;
   late int remainingTime;
-  int currentShotInSet = 1; 
-  int currentSet = 1; 
+  int currentShotInSet = 1;
+  int currentSet = 1;
   bool isPracticeRound = false;
   bool isPaused = false;
   bool isMatchFinished = false;
@@ -104,7 +104,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
           remainingTime--;
 
           if (!isPreparationPhase && remainingTime == widget.warningTime) {
-            _playSound('beep'); 
+            _playSound('beep');
           }
 
           if (!isPreparationPhase && remainingTime <= 5 && remainingTime > 0) {
@@ -133,7 +133,9 @@ class _ShootingScreenState extends State<ShootingScreen> {
     _stopTimer();
 
     print('DEBUG - Önceki durum:');
-    print('Set: $currentSet / ${isPracticeRound ? widget.practiceRounds : widget.matchRounds}');
+    print(
+      'Set: $currentSet / ${isPracticeRound ? widget.practiceRounds : widget.matchRounds}',
+    );
     print('Atış: $currentShotInSet / 2');
     print('Grup: ${isABGroup ? "AB" : "CD"}');
     print('Mod: ${isPracticeRound ? "Deneme" : "Yarışma"}');
@@ -145,7 +147,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
       // Sonraki atışa geç
       if (currentShotInSet < 2) {
         currentShotInSet++;
-        isABGroup = !isABGroup;  
+        isABGroup = !isABGroup;
         print('DEBUG - Sonraki atışa geçildi');
         return;
       }
@@ -180,16 +182,18 @@ class _ShootingScreenState extends State<ShootingScreen> {
       // Atış stiline göre başlangıç grubunu belirle
       switch (widget.shootingStyle) {
         case ShootingStyle.rotating:
-          isABGroup = currentSet % 2 == 1;  
+          isABGroup = currentSet % 2 == 1;
           break;
         default:
-          isABGroup = true;  
+          isABGroup = true;
           break;
       }
     });
 
     print('DEBUG - Sonraki durum:');
-    print('Set: $currentSet / ${isPracticeRound ? widget.practiceRounds : widget.matchRounds}');
+    print(
+      'Set: $currentSet / ${isPracticeRound ? widget.practiceRounds : widget.matchRounds}',
+    );
     print('Atış: $currentShotInSet / 2');
     print('Grup: ${isABGroup ? "AB" : "CD"}');
     print('Mod: ${isPracticeRound ? "Deneme" : "Yarışma"}');
@@ -234,9 +238,12 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Color timerColor = isPreparationPhase
-        ? Colors.orange
-        : (remainingTime <= widget.warningTime ? Colors.orange : Colors.green);
+    Color timerColor =
+        isPreparationPhase
+            ? Colors.orange
+            : (remainingTime <= widget.warningTime
+                ? Colors.orange
+                : Colors.green);
 
     return Scaffold(
       body: SafeArea(
@@ -326,7 +333,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: isMatchFinished ? null : (isRunning ? _stopTimer : _startTimer),
+                        onPressed:
+                            isMatchFinished
+                                ? null
+                                : (isRunning ? _stopTimer : _startTimer),
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                               isRunning ? Colors.red : Colors.green,
@@ -340,6 +350,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -357,6 +368,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -373,10 +385,11 @@ class _ShootingScreenState extends State<ShootingScreen> {
                       ),
                     ),
                     child: const Text(
-                      'ANA MENÜ',
+                      'SIFIRLA',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                   ),
