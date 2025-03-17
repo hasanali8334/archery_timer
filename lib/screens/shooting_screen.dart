@@ -35,23 +35,18 @@ class _ShootingScreenState extends State<ShootingScreen> {
   Timer? _timer;
   bool isRunning = false;
   bool isPreparationPhase = true;
-  bool isShootingPhase = false;
   bool isABGroup = true;
   late int remainingTime;
-  int currentShotInSet = 1; // 1-2 arası atış sırası (AB veya CD için)
-  int currentSet = 1; // 1-2 arası set sırası (her seride 2 set var)
-  int currentRound = 1; // Mevcut seri sayısı
-  bool isPracticeRound = true;
+  int currentShotInSet = 1; 
+  int currentSet = 1; 
+  bool isPracticeRound = false;
   bool isPaused = false;
-  int currentShotDuration = 0;
-  int _practiceRoundCount = 0;
   bool isMatchFinished = false;
 
   @override
   void initState() {
     super.initState();
-    // Deneme atışı yoksa direkt yarışma başlar
-    isPracticeRound = widget.practiceRounds > 0;
+    isPracticeRound = false;  
     currentSet = 1;
     currentShotInSet = 1;
     isABGroup = true;
@@ -59,7 +54,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
     remainingTime = widget.preparationTime;
     _updateTargetGroup();
     isPaused = false;
-    _practiceRoundCount = 0;
     isMatchFinished = false;
   }
 
@@ -73,15 +67,11 @@ class _ShootingScreenState extends State<ShootingScreen> {
     if (widget.shootingStyle == ShootingStyle.standard) {
       isABGroup = true;
     } else if (widget.shootingStyle == ShootingStyle.alternating) {
-      // Dönüşümsüz: Set 1'de AB, Set 2'de CD atıyor
       isABGroup = currentSet == 1;
     } else {
-      // Dönüşümlü: Tek sayılı serilerde AB-CD, çift sayılı serilerde CD-AB
-      if (currentRound % 2 == 1) {
-        // Tek sayılı seri
+      if (currentSet % 2 == 1) {
         isABGroup = currentSet == 1;
       } else {
-        // Çift sayılı seri
         isABGroup = currentSet == 2;
       }
     }
@@ -112,12 +102,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
         if (remainingTime > 0) {
           remainingTime--;
 
-          // Uyarı süresi kontrolü
           if (!isPreparationPhase && remainingTime == widget.warningTime) {
-            _playSound('beep'); // Uyarı başlangıcında tek beep
+            _playSound('beep'); 
           }
 
-          // Son 5 saniye kontrolü
           if (!isPreparationPhase && remainingTime <= 5 && remainingTime > 0) {
             _playSound('beep');
           }
@@ -127,14 +115,12 @@ class _ShootingScreenState extends State<ShootingScreen> {
           _playSound('whistle');
 
           if (isPreparationPhase) {
-            // Hazırlık süresi bitti, atış süresine geç
             setState(() {
               isPreparationPhase = false;
               remainingTime = widget.shootingTime;
             });
             _startTimer();
           } else {
-            // Atış süresi bitti, sonraki atışa geç
             _finishShot();
           }
         }
@@ -145,115 +131,49 @@ class _ShootingScreenState extends State<ShootingScreen> {
   void _finishShot() {
     _stopTimer();
 
+    print('DEBUG - Önceki durum:');
+    print('Set: $currentSet / ${widget.matchRounds}');
+    print('Atış: $currentShotInSet / 2');
+    print('Grup: ${isABGroup ? "AB" : "CD"}');
+
     setState(() {
       isPreparationPhase = true;
       remainingTime = widget.preparationTime;
 
-      // Sonraki atışa geç
       if (currentShotInSet < 2) {
         currentShotInSet++;
-        isABGroup = !isABGroup;  // AB -> CD veya CD -> AB
+        isABGroup = !isABGroup;  
+        print('DEBUG - Sonraki atışa geçildi');
         return;
       }
 
-      // Set bitti, sıfırla
       currentShotInSet = 1;
       isABGroup = true;
 
-      // Deneme atışları kontrolü
-      if (isPracticeRound) {
-        _practiceRoundCount++;
-        if (_practiceRoundCount >= widget.practiceRounds) {
-          isPracticeRound = false;
-          currentSet = 1;
-          return;
-        }
-        currentSet++;
-        return;
-      }
-
-      // Yarışma seti kontrolü
       if (currentSet >= widget.matchRounds) {
         isMatchFinished = true;
+        print('DEBUG - Yarışma bitti!');
         return;
       }
 
-      // Sonraki sete geç
       currentSet++;
+      print('DEBUG - Sonraki sete geçildi: $currentSet');
 
-      // Atış stiline göre başlangıç grubunu belirle
       switch (widget.shootingStyle) {
         case ShootingStyle.rotating:
-          isABGroup = currentSet % 2 == 1;  // Tek setlerde AB, çift setlerde CD başlar
+          isABGroup = currentSet % 2 == 1;  
           break;
         default:
-          isABGroup = true;  // Her sette AB başlar
+          isABGroup = true;  
           break;
       }
     });
-  }
 
-  void finishShot() {
-    stopTimer();
-
-    if (currentShotInSet == 2) {
-      // Set tamamlandı
-      if (currentSet == 2) {
-        // Seri tamamlandı
-        if (isPracticeRound && currentRound < widget.practiceRounds) {
-          // Deneme serisi devam ediyor
-          setState(() {
-            currentShotInSet = 1;
-            currentSet = 1;
-            currentRound++;
-            remainingTime = widget.preparationTime;
-            isPreparationPhase = true;
-          });
-          _updateTargetGroup();
-        } else if (isPracticeRound) {
-          // Deneme serileri bitti, yarışma serilerine geç
-          setState(() {
-            isPracticeRound = false;
-            currentShotInSet = 1;
-            currentSet = 1;
-            currentRound = 1;
-            remainingTime = widget.preparationTime;
-            isPreparationPhase = true;
-          });
-          _updateTargetGroup();
-        } else if (currentRound >= widget.matchRounds) {
-          // Yarışma serileri bitti, ana menüye dön
-          widget.onReset();
-        } else {
-          // Sonraki seriye geç
-          setState(() {
-            currentShotInSet = 1;
-            currentSet = 1;
-            currentRound++;
-            remainingTime = widget.preparationTime;
-            isPreparationPhase = true;
-          });
-          _updateTargetGroup();
-        }
-      } else {
-        // Sonraki sete geç
-        setState(() {
-          currentShotInSet = 1;
-          currentSet++;
-          remainingTime = widget.preparationTime;
-          isPreparationPhase = true;
-        });
-        _updateTargetGroup();
-      }
-    } else {
-      // Sonraki atışa geç
-      setState(() {
-        currentShotInSet++;
-        remainingTime = widget.preparationTime;
-        isPreparationPhase = true;
-      });
-      _updateTargetGroup();
-    }
+    print('DEBUG - Sonraki durum:');
+    print('Set: $currentSet / ${widget.matchRounds}');
+    print('Atış: $currentShotInSet / 2');
+    print('Grup: ${isABGroup ? "AB" : "CD"}');
+    print('-------------------');
   }
 
   void stopTimer() {
@@ -283,7 +203,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
     return '$seconds';
   }
 
-  // Sonraki atış bilgisini döndürür
   String _getNextShotInfo() {
     if (isMatchFinished) {
       return 'YARIŞMA BİTTİ';
@@ -293,7 +212,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Timer arkaplan rengi
     Color timerColor = isPreparationPhase
         ? Colors.orange
         : (remainingTime <= widget.warningTime ? Colors.orange : Colors.green);
@@ -303,7 +221,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Üst kısım (AB/CD göstergesi)
             Container(
               padding: const EdgeInsets.symmetric(vertical: 32),
               child: Center(
@@ -321,37 +238,11 @@ class _ShootingScreenState extends State<ShootingScreen> {
                 ),
               ),
             ),
-            // Deneme/Yarış serisi göstergesi
-            if (widget.practiceRounds > 0 && !isMatchFinished)
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    isPracticeRound ? 'DENEME SERİSİ' : 'YARIŞ SERİSİ',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '${currentSet}. SET - ${currentShotInSet}. ATIŞ',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            // Timer ve butonlar
             Expanded(
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Süre göstergesi
                     Container(
                       padding: const EdgeInsets.all(32),
                       decoration: BoxDecoration(
@@ -367,7 +258,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
                         ),
                       ),
                     ),
-                    // Sonraki atış bilgisi
                     if (!isRunning)
                       Container(
                         padding: const EdgeInsets.only(top: 24),
@@ -388,13 +278,11 @@ class _ShootingScreenState extends State<ShootingScreen> {
                 ),
               ),
             ),
-            // Alt kısım (butonlar)
             Container(
               padding: const EdgeInsets.all(16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Üst sıra butonları
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -441,7 +329,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  // Alt sıra butonu
                   ElevatedButton(
                     onPressed: widget.onReset,
                     style: ElevatedButton.styleFrom(
