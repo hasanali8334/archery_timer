@@ -37,10 +37,14 @@ class _MainScreenState extends State<MainScreen> {
   int _matchRounds = 12;
   ShootingStyle _shootingStyle = ShootingStyle.standard;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadSettings();
+  void _saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt('preparationTime', _preparationTime);
+    prefs.setInt('shootingTime', _shootingTime);
+    prefs.setInt('warningTime', _warningTime);
+    prefs.setInt('practiceRounds', _practiceRounds);
+    prefs.setInt('matchRounds', _matchRounds);
+    prefs.setInt('shootingStyle', _shootingStyle.index);
   }
 
   void _loadSettings() async {
@@ -57,6 +61,12 @@ class _MainScreenState extends State<MainScreen> {
 
   void _onReset() {
     setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
   }
 
   @override
@@ -77,6 +87,42 @@ class _MainScreenState extends State<MainScreen> {
       soundService: _soundService,
       onReset: _onReset,
       shotsPerSet: 2,
+      onPreparationTimeChanged: (value) {
+        setState(() {
+          _preparationTime = value;
+          _saveSettings();
+        });
+      },
+      onShootingTimeChanged: (value) {
+        setState(() {
+          _shootingTime = value;
+          _saveSettings();
+        });
+      },
+      onWarningTimeChanged: (value) {
+        setState(() {
+          _warningTime = value;
+          _saveSettings();
+        });
+      },
+      onPracticeRoundsChanged: (value) {
+        setState(() {
+          _practiceRounds = value;
+          _saveSettings();
+        });
+      },
+      onMatchRoundsChanged: (value) {
+        setState(() {
+          _matchRounds = value;
+          _saveSettings();
+        });
+      },
+      onShootingStyleChanged: (value) {
+        setState(() {
+          _shootingStyle = value;
+          _saveSettings();
+        });
+      },
     );
   }
 }
