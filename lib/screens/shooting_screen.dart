@@ -141,10 +141,24 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
     // Yarışma bitti mi kontrolü
     if (!isPracticeRound && currentSet >= widget.matchRounds) {
-      setState(() {
-        isMatchFinished = true;
-      });
-      return;
+      // Son atış mı kontrolü
+      bool isLastShot = false;
+      switch (widget.shootingStyle) {
+        case ShootingStyle.standard:
+          isLastShot = currentShotInSet >= widget.shotsPerSet;
+          break;
+        case ShootingStyle.alternating:
+        case ShootingStyle.rotating:
+          isLastShot = currentShotInSet >= 2;
+          break;
+      }
+
+      if (isLastShot) {
+        setState(() {
+          isMatchFinished = true;
+        });
+        return;
+      }
     }
 
     setState(() {
