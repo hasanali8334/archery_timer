@@ -46,7 +46,8 @@ class _ShootingScreenState extends State<ShootingScreen> {
   @override
   void initState() {
     super.initState();
-    isPracticeRound = false;  
+    // Deneme atışı varsa deneme ile başla
+    isPracticeRound = widget.practiceRounds > 0;
     currentSet = 1;
     currentShotInSet = 1;
     isABGroup = true;
@@ -132,14 +133,16 @@ class _ShootingScreenState extends State<ShootingScreen> {
     _stopTimer();
 
     print('DEBUG - Önceki durum:');
-    print('Set: $currentSet / ${widget.matchRounds}');
+    print('Set: $currentSet / ${isPracticeRound ? widget.practiceRounds : widget.matchRounds}');
     print('Atış: $currentShotInSet / 2');
     print('Grup: ${isABGroup ? "AB" : "CD"}');
+    print('Mod: ${isPracticeRound ? "Deneme" : "Yarışma"}');
 
     setState(() {
       isPreparationPhase = true;
       remainingTime = widget.preparationTime;
 
+      // Sonraki atışa geç
       if (currentShotInSet < 2) {
         currentShotInSet++;
         isABGroup = !isABGroup;  
@@ -147,18 +150,34 @@ class _ShootingScreenState extends State<ShootingScreen> {
         return;
       }
 
+      // Set bitti, sıfırla
       currentShotInSet = 1;
       isABGroup = true;
 
-      if (currentSet >= widget.matchRounds) {
-        isMatchFinished = true;
-        print('DEBUG - Yarışma bitti!');
-        return;
+      // Set kontrolü
+      if (isPracticeRound) {
+        // Deneme atışları
+        if (currentSet >= widget.practiceRounds) {
+          // Deneme bitti, yarışmaya geç
+          isPracticeRound = false;
+          currentSet = 1;
+          print('DEBUG - Deneme bitti, yarışma başlıyor');
+          return;
+        }
+      } else {
+        // Yarışma atışları
+        if (currentSet >= widget.matchRounds) {
+          isMatchFinished = true;
+          print('DEBUG - Yarışma bitti!');
+          return;
+        }
       }
 
+      // Sonraki sete geç
       currentSet++;
       print('DEBUG - Sonraki sete geçildi: $currentSet');
 
+      // Atış stiline göre başlangıç grubunu belirle
       switch (widget.shootingStyle) {
         case ShootingStyle.rotating:
           isABGroup = currentSet % 2 == 1;  
@@ -170,9 +189,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
     });
 
     print('DEBUG - Sonraki durum:');
-    print('Set: $currentSet / ${widget.matchRounds}');
+    print('Set: $currentSet / ${isPracticeRound ? widget.practiceRounds : widget.matchRounds}');
     print('Atış: $currentShotInSet / 2');
     print('Grup: ${isABGroup ? "AB" : "CD"}');
+    print('Mod: ${isPracticeRound ? "Deneme" : "Yarışma"}');
     print('-------------------');
   }
 
@@ -207,7 +227,9 @@ class _ShootingScreenState extends State<ShootingScreen> {
     if (isMatchFinished) {
       return 'YARIŞMA BİTTİ';
     }
-    return '${isABGroup ? 'AB' : 'CD'} GRUBU\n${currentSet}. SET - ${currentShotInSet}. ATIŞ';
+    return isPracticeRound
+        ? 'DENEME - ${currentSet}. SET'
+        : 'YARIŞMA - ${currentSet}. SET';
   }
 
   @override
@@ -217,43 +239,63 @@ class _ShootingScreenState extends State<ShootingScreen> {
         : (remainingTime <= widget.warningTime ? Colors.orange : Colors.green);
 
     return Scaffold(
-      backgroundColor: Colors.blue.shade700,
       body: SafeArea(
         child: Column(
           children: [
+            // Üst kısım (AB/CD göstergesi)
             Container(
               padding: const EdgeInsets.symmetric(vertical: 32),
               child: Center(
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 300),
-                  opacity: 1.0,
-                  child: Text(
-                    isMatchFinished ? 'BİTTİ' : (isABGroup ? 'AB' : 'CD'),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 72,
-                      fontWeight: FontWeight.bold,
-                    ),
+                child: Text(
+                  isABGroup ? 'AB GRUBU' : 'CD GRUBU',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ),
+            // Set ve atış bilgisi
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  isPracticeRound ? 'DENEME ATIŞI' : 'YARIŞMA ATIŞI',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '${currentSet}. SET - ${currentShotInSet}. ATIŞ',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            // Timer ve butonlar
             Expanded(
               child: Center(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
                       padding: const EdgeInsets.all(32),
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
                         color: timerColor,
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
                         _formatTime(remainingTime),
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 72,
+                          fontSize: 96,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -261,17 +303,14 @@ class _ShootingScreenState extends State<ShootingScreen> {
                     if (!isRunning)
                       Container(
                         padding: const EdgeInsets.only(top: 24),
-                        width: double.infinity,
-                        child: Center(
-                          child: Text(
-                            _getNextShotInfo(),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
+                        child: Text(
+                          _getNextShotInfo(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                           ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
                   ],
@@ -287,42 +326,37 @@ class _ShootingScreenState extends State<ShootingScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: isMatchFinished ? null : (isRunning ? _stopTimer : _startTimer),
+                        onPressed: isRunning ? _stopTimer : _startTimer,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: isRunning ? Colors.orange : Colors.green,
+                          backgroundColor:
+                              isRunning ? Colors.red : Colors.green,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 32,
                             vertical: 16,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
                           ),
                         ),
                         child: Text(
                           isRunning ? 'DURDUR' : 'BAŞLAT',
                           style: const TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: isMatchFinished ? null : _finishShot,
+                        onPressed: isRunning ? null : _finishShot,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
+                          backgroundColor: Colors.blue,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 32,
                             vertical: 16,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
                           ),
                         ),
                         child: const Text(
                           'BİTİR',
                           style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -332,20 +366,17 @@ class _ShootingScreenState extends State<ShootingScreen> {
                   ElevatedButton(
                     onPressed: widget.onReset,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red.shade900,
+                      backgroundColor: Colors.grey,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 32,
                         vertical: 16,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
                     ),
                     child: const Text(
-                      'SIFIRLA',
+                      'ANA MENÜ',
                       style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
