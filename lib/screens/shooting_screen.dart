@@ -226,161 +226,113 @@ class _ShootingScreenState extends State<ShootingScreen> {
     });
   }
 
-  String _formatTime(int seconds) {
-    return '$seconds';
-  }
-
-  String _getNextShotInfo() {
-    if (isMatchFinished) {
-      return 'YARIŞMA BİTTİ';
-    }
-    return isPracticeRound
-        ? 'DENEME - ${currentSet}. SET'
-        : 'YARIŞMA - ${currentSet}. SET';
-  }
-
   @override
   Widget build(BuildContext context) {
-    Color timerColor =
-        isPreparationPhase
-            ? Colors.orange
-            : (remainingTime <= widget.warningTime
-                ? Colors.orange
-                : Colors.green);
+    Color timerColor = isPreparationPhase
+        ? Colors.orange
+        : (remainingTime <= widget.warningTime ? Colors.orange : Colors.green);
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Atış'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Üst kısım (AB/CD göstergesi)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 32),
-              child: Center(
-                child: Text(
-                  isABGroup ? 'AB GRUBU' : 'CD GRUBU',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                  ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                isPreparationPhase ? 'HAZIRLIK' : 'ATIŞ',
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            // Set ve atış bilgisi
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  isPracticeRound ? 'DENEME ATIŞI' : 'YARIŞMA ATIŞI',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+              const SizedBox(height: 32),
+              Text(
+                remainingTime.toString(),
+                style: TextStyle(
+                  fontSize: 120,
+                  fontWeight: FontWeight.bold,
+                  color: timerColor,
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  '${currentSet}. SET - ${currentShotInSet}. ATIŞ',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+              ),
+              const SizedBox(height: 32),
+              Text(
+                isABGroup ? 'AB GRUBU' : 'CD GRUBU',
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
-            ),
-            // Timer ve butonlar
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(32),
-                      decoration: BoxDecoration(
-                        color: timerColor,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        _formatTime(remainingTime),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 96,
-                          fontWeight: FontWeight.bold,
-                        ),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: isRunning ? _stopTimer : _startTimer,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isRunning ? Colors.red : Colors.green,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
                       ),
                     ),
-                    if (!isRunning)
-                      Container(
-                        padding: const EdgeInsets.only(top: 24),
-                        child: Text(
-                          _getNextShotInfo(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
+                    child: Text(
+                      isRunning ? 'DURDUR' : 'BAŞLAT',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed:
-                            isMatchFinished
-                                ? null
-                                : (isRunning ? _stopTimer : _startTimer),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              isRunning ? Colors.red : Colors.green,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 16,
-                          ),
-                        ),
-                        child: Text(
-                          isRunning ? 'DURDUR' : 'BAŞLAT',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: _finishShot,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
                       ),
-                      ElevatedButton(
-                        onPressed: isMatchFinished ? null : _finishShot,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 16,
-                          ),
-                        ),
-                        child: const Text(
-                          'BİTİR',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
+                    ),
+                    child: const Text(
+                      'BİTİR',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
-                    ],
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 32),
+              Text(
+                'Set: $currentSet / ${isPracticeRound ? widget.practiceRounds : widget.matchRounds}',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'Atış: $currentShotInSet / 2',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                isPracticeRound ? 'DENEME ATIŞI' : 'YARIŞMA',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
