@@ -46,50 +46,29 @@ class ShootingScreen extends StatefulWidget {
 }
 
 class _ShootingScreenState extends State<ShootingScreen> {
-  Timer? _timer;
   bool isRunning = false;
   bool isPreparationPhase = true;
-  bool isABGroup = true;
-  late int remainingTime;
-  int currentShotInSet = 1;
-  int currentSet = 1;
   bool isPracticeRound = false;
-  bool isPaused = false;
-  bool isMatchFinished = false;
+  Timer? _timer;
+  int remainingTime = 0;
+  int currentSet = 1;
+  int currentShotInSet = 1;
 
   @override
   void initState() {
     super.initState();
-    // Deneme atışı varsa deneme ile başla, yoksa yarışma ile başla
+    // Deneme atışı 0'dan büyükse deneme ile başla, değilse yarışma ile başla
     isPracticeRound = widget.practiceRounds > 0;
     currentSet = 1;
     currentShotInSet = 1;
-    isABGroup = true;
-    isPreparationPhase = true;
     remainingTime = widget.preparationTime;
-    _updateTargetGroup();
-    isPaused = false;
-    isMatchFinished = false;
+    isPreparationPhase = true;
   }
 
   @override
   void dispose() {
     _timer?.cancel();
     super.dispose();
-  }
-
-  void _updateTargetGroup() {
-    if (widget.shootingStyle == ShootingStyle.standard) {
-      isABGroup = true;
-    } else if (widget.shootingStyle == ShootingStyle.alternating) {
-      isABGroup = currentSet == 1;
-    } else {
-      if (currentSet % 2 == 1) {
-        isABGroup = currentSet == 1;
-      } else {
-        isABGroup = currentSet == 2;
-      }
-    }
   }
 
   void _playSound(String soundType) {
@@ -111,6 +90,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
     setState(() {
       isRunning = true;
     });
+    _playSound('whistle');
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
@@ -151,7 +131,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
       'Set: $currentSet / ${isPracticeRound ? widget.practiceRounds : widget.matchRounds}',
     );
     print('Atış: $currentShotInSet / 2');
-    print('Grup: ${isABGroup ? "AB" : "CD"}');
     print('Mod: ${isPracticeRound ? "Deneme" : "Yarışma"}');
 
     setState(() {
@@ -161,17 +140,12 @@ class _ShootingScreenState extends State<ShootingScreen> {
       // Sonraki atışa geç
       if (currentShotInSet < 2) {
         currentShotInSet++;
-        // Sadece dönüşümlü atışta CD'ye geç
-        if (widget.shootingStyle == ShootingStyle.rotating) {
-          isABGroup = !isABGroup;
-        }
         print('DEBUG - Sonraki atışa geçildi');
         return;
       }
 
       // Set bitti, sıfırla
       currentShotInSet = 1;
-      isABGroup = true;
 
       // Set kontrolü
       if (isPracticeRound && widget.practiceRounds > 0) {
@@ -186,7 +160,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
       } else {
         // Yarışma atışları
         if (currentSet >= widget.matchRounds) {
-          isMatchFinished = true;
           print('DEBUG - Yarışma bitti!');
           return;
         }
@@ -195,16 +168,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
       // Sonraki sete geç
       currentSet++;
       print('DEBUG - Sonraki sete geçildi: $currentSet');
-
-      // Atış stiline göre başlangıç grubunu belirle
-      switch (widget.shootingStyle) {
-        case ShootingStyle.rotating:
-          isABGroup = currentSet % 2 == 1;
-          break;
-        default:
-          isABGroup = true;
-          break;
-      }
     });
 
     print('DEBUG - Sonraki durum:');
@@ -212,7 +175,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
       'Set: $currentSet / ${isPracticeRound ? widget.practiceRounds : widget.matchRounds}',
     );
     print('Atış: $currentShotInSet / 2');
-    print('Grup: ${isABGroup ? "AB" : "CD"}');
     print('Mod: ${isPracticeRound ? "Deneme" : "Yarışma"}');
     print('-------------------');
   }
@@ -220,21 +182,16 @@ class _ShootingScreenState extends State<ShootingScreen> {
   void stopTimer() {
     setState(() {
       isRunning = false;
-      isPaused = true;
     });
   }
 
   void continueTimer() {
-    setState(() {
-      isPaused = false;
-    });
     _startTimer();
   }
 
   void resetTimer() {
     setState(() {
       isRunning = false;
-      isPaused = false;
       remainingTime =
           isPreparationPhase ? widget.preparationTime : widget.shootingTime;
     });
@@ -245,6 +202,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
     Color timerColor = isPreparationPhase
         ? Colors.orange
         : (remainingTime <= widget.warningTime ? Colors.orange : Colors.green);
+
+    String phaseText = isPracticeRound && widget.practiceRounds > 0
+        ? 'Deneme Atışı $currentSet/${widget.practiceRounds}'
+        : 'Set $currentSet/${widget.matchRounds}';
 
     return Scaffold(
       appBar: AppBar(
@@ -260,20 +221,24 @@ class _ShootingScreenState extends State<ShootingScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => SettingsScreen(
-                        preparationTime: widget.preparationTime,
-                        shootingTime: widget.shootingTime,
-                        warningTime: widget.warningTime,
-                        practiceRounds: widget.practiceRounds,
-                        matchRounds: widget.matchRounds,
-                        shootingStyle: widget.shootingStyle,
-                        onPreparationTimeChanged: widget.onPreparationTimeChanged,
-                        onShootingTimeChanged: widget.onShootingTimeChanged,
-                        onWarningTimeChanged: widget.onWarningTimeChanged,
-                        onPracticeRoundsChanged: widget.onPracticeRoundsChanged,
-                        onMatchRoundsChanged: widget.onMatchRoundsChanged,
-                        onShootingStyleChanged: widget.onShootingStyleChanged,
-                      ),
+                      builder:
+                          (context) => SettingsScreen(
+                            preparationTime: widget.preparationTime,
+                            shootingTime: widget.shootingTime,
+                            warningTime: widget.warningTime,
+                            practiceRounds: widget.practiceRounds,
+                            matchRounds: widget.matchRounds,
+                            shootingStyle: widget.shootingStyle,
+                            onPreparationTimeChanged:
+                                widget.onPreparationTimeChanged,
+                            onShootingTimeChanged: widget.onShootingTimeChanged,
+                            onWarningTimeChanged: widget.onWarningTimeChanged,
+                            onPracticeRoundsChanged:
+                                widget.onPracticeRoundsChanged,
+                            onMatchRoundsChanged: widget.onMatchRoundsChanged,
+                            onShootingStyleChanged:
+                                widget.onShootingStyleChanged,
+                          ),
                     ),
                   );
                   break;
@@ -281,10 +246,11 @@ class _ShootingScreenState extends State<ShootingScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => FinalShotScreen(
-                        soundService: widget.soundService,
-                        onReset: widget.onReset,
-                      ),
+                      builder:
+                          (context) => FinalShotScreen(
+                            soundService: widget.soundService,
+                            onReset: widget.onReset,
+                          ),
                     ),
                   );
                   break;
@@ -293,38 +259,39 @@ class _ShootingScreenState extends State<ShootingScreen> {
                   break;
               }
             },
-            itemBuilder: (BuildContext context) => [
-              const PopupMenuItem<String>(
-                value: 'settings',
-                child: Row(
-                  children: [
-                    Icon(Icons.settings, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text('Ayarlar'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem<String>(
-                value: 'final_shot',
-                child: Row(
-                  children: [
-                    Icon(Icons.sports_score, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text('Final Atışı'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem<String>(
-                value: 'reset',
-                child: Row(
-                  children: [
-                    Icon(Icons.refresh, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text('Sıfırla'),
-                  ],
-                ),
-              ),
-            ],
+            itemBuilder:
+                (BuildContext context) => [
+                  const PopupMenuItem<String>(
+                    value: 'settings',
+                    child: Row(
+                      children: [
+                        Icon(Icons.settings, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text('Ayarlar'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'final_shot',
+                    child: Row(
+                      children: [
+                        Icon(Icons.sports_score, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text('Final Atışı'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'reset',
+                    child: Row(
+                      children: [
+                        Icon(Icons.refresh, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text('Sıfırla'),
+                      ],
+                    ),
+                  ),
+                ],
           ),
         ],
       ),
@@ -351,9 +318,9 @@ class _ShootingScreenState extends State<ShootingScreen> {
               ),
               const SizedBox(height: 32),
               Text(
-                isABGroup ? 'AB GRUBU' : 'CD GRUBU',
+                phaseText,
                 style: const TextStyle(
-                  fontSize: 32,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -400,13 +367,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
                 ],
               ),
               const SizedBox(height: 32),
-              Text(
-                'Set: $currentSet / ${isPracticeRound ? widget.practiceRounds : widget.matchRounds}',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
               Text(
                 'Atış: $currentShotInSet / 2',
                 style: const TextStyle(
