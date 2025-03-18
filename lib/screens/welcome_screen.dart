@@ -86,17 +86,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/images/logo.png',
-              width: 200,
-              height: 200,
+            const CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 5,
             ),
             const SizedBox(height: 32),
             const Text(
-              'Ottoman Archery Timer',
+              'Yükleniyor...',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 32,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
