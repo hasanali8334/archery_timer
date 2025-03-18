@@ -171,6 +171,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
   }
 
   void stopTimer() {
+    _timer?.cancel();
     setState(() {
       isRunning = false;
     });
@@ -181,6 +182,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
   }
 
   void resetTimer() {
+    _timer?.cancel();
     setState(() {
       isRunning = false;
       remainingTime =
