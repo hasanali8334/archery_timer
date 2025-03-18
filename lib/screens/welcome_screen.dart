@@ -4,7 +4,7 @@ import '../models/shooting_style.dart';
 import '../services/sound_service.dart';
 import 'shooting_screen.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   final Settings settings;
   final SoundService soundService;
   final Function(int) onPreparationTimeChanged;
@@ -26,45 +26,56 @@ class WelcomeScreen extends StatelessWidget {
     required this.onShootingStyleChanged,
   });
 
-  void _startShooting(BuildContext context) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ShootingScreen(
-          preparationTime: settings.preparationTime,
-          shootingTime: settings.shootingTime,
-          warningTime: settings.warningTime,
-          practiceRounds: settings.practiceRounds,
-          matchRounds: settings.matchRounds,
-          shotsPerSet: 2,
-          shootingStyle: settings.shootingStyle,
-          soundService: soundService,
-          onReset: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => WelcomeScreen(
-                  settings: settings,
-                  soundService: soundService,
-                  onPreparationTimeChanged: onPreparationTimeChanged,
-                  onShootingTimeChanged: onShootingTimeChanged,
-                  onWarningTimeChanged: onWarningTimeChanged,
-                  onPracticeRoundsChanged: onPracticeRoundsChanged,
-                  onMatchRoundsChanged: onMatchRoundsChanged,
-                  onShootingStyleChanged: onShootingStyleChanged,
-                ),
-              ),
-            );
-          },
-          onPreparationTimeChanged: onPreparationTimeChanged,
-          onShootingTimeChanged: onShootingTimeChanged,
-          onWarningTimeChanged: onWarningTimeChanged,
-          onPracticeRoundsChanged: onPracticeRoundsChanged,
-          onMatchRoundsChanged: onMatchRoundsChanged,
-          onShootingStyleChanged: onShootingStyleChanged,
-        ),
-      ),
-    );
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ShootingScreen(
+              preparationTime: widget.settings.preparationTime,
+              shootingTime: widget.settings.shootingTime,
+              warningTime: widget.settings.warningTime,
+              practiceRounds: widget.settings.practiceRounds,
+              matchRounds: widget.settings.matchRounds,
+              shotsPerSet: 2,
+              shootingStyle: widget.settings.shootingStyle,
+              soundService: widget.soundService,
+              onReset: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WelcomeScreen(
+                      settings: widget.settings,
+                      soundService: widget.soundService,
+                      onPreparationTimeChanged: widget.onPreparationTimeChanged,
+                      onShootingTimeChanged: widget.onShootingTimeChanged,
+                      onWarningTimeChanged: widget.onWarningTimeChanged,
+                      onPracticeRoundsChanged: widget.onPracticeRoundsChanged,
+                      onMatchRoundsChanged: widget.onMatchRoundsChanged,
+                      onShootingStyleChanged: widget.onShootingStyleChanged,
+                    ),
+                  ),
+                );
+              },
+              onPreparationTimeChanged: widget.onPreparationTimeChanged,
+              onShootingTimeChanged: widget.onShootingTimeChanged,
+              onWarningTimeChanged: widget.onWarningTimeChanged,
+              onPracticeRoundsChanged: widget.onPracticeRoundsChanged,
+              onMatchRoundsChanged: widget.onMatchRoundsChanged,
+              onShootingStyleChanged: widget.onShootingStyleChanged,
+            ),
+          ),
+        );
+      }
+    });
   }
 
   @override
@@ -87,25 +98,6 @@ class WelcomeScreen extends StatelessWidget {
                 color: Colors.white,
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 64),
-            ElevatedButton(
-              onPressed: () => _startShooting(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 48,
-                  vertical: 16,
-                ),
-              ),
-              child: Text(
-                'BAŞLA',
-                style: TextStyle(
-                  color: Colors.blue.shade700,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
               ),
             ),
           ],
