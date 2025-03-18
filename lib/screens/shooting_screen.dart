@@ -68,7 +68,9 @@ class _ShootingScreenState extends State<ShootingScreen> {
     currentShotInSet = 1;
     currentSeri = 1;
     _updateSeriList();
-    print('DEBUG - InitState: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
+    _updateShootingGroup();
+    print(
+        'DEBUG - InitState: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
   }
 
   void _updateSeriList() {
@@ -85,15 +87,24 @@ class _ShootingScreenState extends State<ShootingScreen> {
         break;
     }
     print('DEBUG - Seri Listesi: $seri');
-    _updateShootingGroup();
   }
 
   void _updateShootingGroup() {
-    if (currentSeri >= 1 && currentSeri <= 4) {
-      shootinggroup = seri[currentSeri];
-      print('DEBUG - Current Seri: $currentSeri');
-      print('DEBUG - Shooting Group: $shootinggroup');
+    if (widget.shootingStyle == ShootingStyle.standard) {
+      shootinggroup = "AB";
+    } else {
+      // Rotating ve Alternating stiller için seri listesinden grubu al
+      shootinggroup = _getShootingGroupForSeries(currentSeri);
+      print(
+          'DEBUG - Grup güncellendi: Seri $currentSeri -> Grup $shootinggroup');
     }
+  }
+
+  String _getShootingGroupForSeries(int seri) {
+    List<String> seriesList = ["", "AB", "CD", "CD", "AB"];
+    print(
+        'DEBUG - Seri için grup seçiliyor: Seri $seri -> Grup ${seriesList[seri]}');
+    return seriesList[seri];
   }
 
   void _onPhaseComplete() {
@@ -115,11 +126,17 @@ class _ShootingScreenState extends State<ShootingScreen> {
       // Sonraki atışa geç
       if (currentShotInSet < 2) {
         currentShotInSet++;
-        if (widget.shootingStyle == ShootingStyle.rotating) {
-          currentSeri = (currentSeri % 4) + 1;
+        print(
+            'DEBUG - Atış öncesi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
+
+        // Her atış sonunda grup değişimi yap
+        if (widget.shootingStyle == ShootingStyle.rotating ||
+            widget.shootingStyle == ShootingStyle.alternating) {
+          int nextSeri = (currentSeri % 4) + 1;
+          print('DEBUG - Seri değişiyor: $currentSeri -> $nextSeri');
+          currentSeri = nextSeri;
           _updateShootingGroup();
         }
-        print('DEBUG - Sonraki atışa geçildi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
         return;
       }
 
@@ -130,11 +147,16 @@ class _ShootingScreenState extends State<ShootingScreen> {
       // Eğer deneme atışları varsa ve henüz bitmemişse
       if (isPracticeRound) {
         if (currentSet <= widget.practiceRounds) {
-          if (widget.shootingStyle == ShootingStyle.rotating) {
-            currentSeri = (currentSeri % 4) + 1;
+          print(
+              'DEBUG - Set öncesi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
+          if (widget.shootingStyle == ShootingStyle.rotating ||
+              widget.shootingStyle == ShootingStyle.alternating) {
+            int nextSeri = (currentSeri % 4) + 1;
+            print(
+                'DEBUG - Deneme seti seri değişiyor: $currentSeri -> $nextSeri');
+            currentSeri = nextSeri;
             _updateShootingGroup();
           }
-          print('DEBUG - Sonraki deneme setine geçildi: Set $currentSet, Seri $currentSeri, Grup $shootinggroup');
           return;
         }
         // Deneme atışları bitti, normal setlere geç
@@ -142,7 +164,8 @@ class _ShootingScreenState extends State<ShootingScreen> {
         currentSet = 1;
         currentSeri = 1;
         _updateShootingGroup();
-        print('DEBUG - Normal setlere geçildi: Set $currentSet, Seri $currentSeri, Grup $shootinggroup');
+        print(
+            'DEBUG - Normal setlere geçildi: Set $currentSet, Seri $currentSeri, Grup $shootinggroup');
         return;
       }
 
@@ -155,11 +178,16 @@ class _ShootingScreenState extends State<ShootingScreen> {
         return;
       }
 
-      if (widget.shootingStyle == ShootingStyle.rotating) {
-        currentSeri = (currentSeri % 4) + 1;
+      print(
+          'DEBUG - Set öncesi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
+      // Her atış sonunda grup değişimi yap
+      if (widget.shootingStyle == ShootingStyle.rotating ||
+          widget.shootingStyle == ShootingStyle.alternating) {
+        int nextSeri = (currentSeri % 4) + 1;
+        print('DEBUG - Normal set seri değişiyor: $currentSeri -> $nextSeri');
+        currentSeri = nextSeri;
         _updateShootingGroup();
       }
-      print('DEBUG - Sonraki sete geçildi: Set $currentSet, Seri $currentSeri, Grup $shootinggroup');
     });
   }
 
@@ -209,53 +237,58 @@ class _ShootingScreenState extends State<ShootingScreen> {
   }
 
   void _finishShot() {
-    _timer?.cancel();
+    _timer?.cancel(); // Timer'ı iptal et
     setState(() {
+      if (isMatchFinished) return;
+
+      // Timer durumunu sıfırla
       isRunning = false;
       isPreparationPhase = true;
       remainingTime = widget.preparationTime;
 
-      // Sonraki atışa geç
+      // Atış tamamlandı, sonraki atışa geç
       if (currentShotInSet < 2) {
-        currentShotInSet++;
-        if (widget.shootingStyle == ShootingStyle.rotating) {
-          currentSeri = (currentSeri % 4) + 1;
+        // Her atış sonunda grup değişimi yap
+        if (widget.shootingStyle == ShootingStyle.rotating || widget.shootingStyle == ShootingStyle.alternating) {
+          int nextSeri = (currentSeri % 4) + 1;
+          print('DEBUG - Seri değişiyor: $currentSeri -> $nextSeri');
+          currentSeri = nextSeri;
           _updateShootingGroup();
         }
-        print('DEBUG - Sonraki atışa geçildi');
+        currentShotInSet++;
+        print('DEBUG - Sonraki atışa geçildi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
         return;
       }
 
-      // Set tamamlandı, sonraki sete geç
+      // Set tamamlandı
       currentShotInSet = 1;
-
-      // Eğer deneme atışları varsa ve henüz bitmemişse
-      if (isPracticeRound) {
-        if (currentSet >= widget.practiceRounds) {
-          // Deneme atışları bitti, yarışmaya geç
-          isPracticeRound = false;
-          currentSet = 1;
-          currentSeri = 1;
-          _updateShootingGroup();
-          print('DEBUG - Normal setlere geçildi');
-          return;
-        }
-      } else {
-        // Yarışma atışları
-        if (currentSet >= widget.matchRounds) {
-          // Tüm setler tamamlandı
-          isMatchFinished = true;
-          widget.soundService.playWhistle();
-          return;
-        }
-      }
-      // Sonraki sete geç
       currentSet++;
-      if (widget.shootingStyle == ShootingStyle.rotating) {
-        currentSeri = (currentSeri % 4) + 1;
+
+      if (isPracticeRound && currentSet > widget.practiceRounds) {
+        // Deneme atışları bitti, normal setlere geç
+        isPracticeRound = false;
+        currentSet = 1;
+        currentSeri = 1;
+        _updateShootingGroup();
+        print('DEBUG - Normal setlere geçildi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
+        return;
+      }
+
+      if (!isPracticeRound && currentSet > widget.matchRounds) {
+        // Yarışma bitti
+        isMatchFinished = true;
+        print('DEBUG - Yarışma bitti!');
+        return;
+      }
+
+      // Sonraki sete geç
+      if (widget.shootingStyle == ShootingStyle.rotating || widget.shootingStyle == ShootingStyle.alternating) {
+        int nextSeri = (currentSeri % 4) + 1;
+        print('DEBUG - Set değişiminde seri değişiyor: $currentSeri -> $nextSeri');
+        currentSeri = nextSeri;
         _updateShootingGroup();
       }
-      print('DEBUG - Sonraki sete geçildi: $currentSet');
+      print('DEBUG - Sonraki sete geçildi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
     });
   }
 
