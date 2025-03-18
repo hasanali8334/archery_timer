@@ -136,16 +136,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
               final prepTime = int.tryParse(_preparationTimeController.text);
               if (prepTime != null && prepTime >= 10 && prepTime <= 60) {
                 widget.onPreparationTimeChanged(prepTime);
+                print('DEBUG - Hazırlık süresi güncellendi: $prepTime');
               }
 
               final shootTime = int.tryParse(_shootingTimeController.text);
               if (shootTime != null && shootTime > 0) {
                 widget.onShootingTimeChanged(shootTime);
+                print('DEBUG - Atış süresi güncellendi: $shootTime');
               }
 
               final warnTime = int.tryParse(_warningTimeController.text);
               if (warnTime != null && warnTime >= 10 && warnTime <= 60) {
                 widget.onWarningTimeChanged(warnTime);
+                print('DEBUG - Uyarı süresi güncellendi: $warnTime');
               }
 
               final practiceRounds = int.tryParse(
@@ -153,15 +156,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
               if (practiceRounds != null && practiceRounds >= 0) {
                 widget.onPracticeRoundsChanged(practiceRounds);
+                print('DEBUG - Deneme atış sayısı güncellendi: $practiceRounds');
               }
 
               final matchRounds = int.tryParse(_matchRoundsController.text);
               if (matchRounds != null && matchRounds >= 1) {
                 widget.onMatchRoundsChanged(matchRounds);
+                print('DEBUG - Yarışma atış sayısı güncellendi: $matchRounds');
               }
 
               widget.onShootingStyleChanged(_shootingStyle);
-              
+              print('DEBUG - Atış stili güncellendi: $_shootingStyle');
               // Welcome ekranına git
               Navigator.pushReplacement(
                 context,
@@ -343,76 +348,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              ListTile(
-                title: const Text(
-                  'ATIŞ STİLİ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+              DropdownButtonFormField<ShootingStyle>(
+                value: _shootingStyle,
+                decoration: const InputDecoration(
+                  labelText: 'Atış Stili',
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: ShootingStyle.standard,
+                    child: Text('Standart'),
                   ),
-                ),
-                subtitle: Column(
-                  children: [
-                    RadioListTile<ShootingStyle>(
-                      title: const Text(
-                        'STANDART',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      subtitle: const Text(
-                        'Sadece AB grubu atıyor',
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                      value: ShootingStyle.standard,
-                      groupValue: _shootingStyle,
-                      onChanged: (ShootingStyle? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            _shootingStyle = newValue;
-                          });
-                        }
-                      },
-                    ),
-                    RadioListTile<ShootingStyle>(
-                      title: const Text(
-                        'DÖNÜŞÜMSÜZ',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      subtitle: const Text(
-                        'Her sette: 1.atış AB, 2.atış CD',
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                      value: ShootingStyle.alternating,
-                      groupValue: _shootingStyle,
-                      onChanged: (ShootingStyle? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            _shootingStyle = newValue;
-                          });
-                        }
-                      },
-                    ),
-                    RadioListTile<ShootingStyle>(
-                      title: const Text(
-                        'DÖNÜŞÜMLÜ',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      subtitle: const Text(
-                        '1.set: AB-CD, 2.set: CD-AB',
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                      value: ShootingStyle.rotating,
-                      groupValue: _shootingStyle,
-                      onChanged: (ShootingStyle? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            _shootingStyle = newValue;
-                          });
-                        }
-                      },
-                    ),
-                  ],
-                ),
+                  DropdownMenuItem(
+                    value: ShootingStyle.alternating,
+                    child: Text('Dönüşümlü'),
+                  ),
+                  DropdownMenuItem(
+                    value: ShootingStyle.rotating,
+                    child: Text('Dönüşümlü (2 Set)'),
+                  ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _shootingStyle = value;
+                      print('DEBUG - Shooting Style değişti: $_shootingStyle');
+                    });
+                  }
+                },
               ),
             ],
           ),

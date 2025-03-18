@@ -68,6 +68,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
   }
 
   void _updateSeriList() {
+    print('DEBUG - Shooting Style: ${widget.shootingStyle}');
     switch (widget.shootingStyle) {
       case ShootingStyle.standard:
         seri = ['', 'AB', 'AB', 'AB', 'AB'];
@@ -79,13 +80,76 @@ class _ShootingScreenState extends State<ShootingScreen> {
         seri = ['', 'AB', 'CD', 'CD', 'AB'];
         break;
     }
+    print('DEBUG - Seri Listesi: $seri');
     _updateShootingGroup();
   }
 
   void _updateShootingGroup() {
     if (currentSeri >= 1 && currentSeri <= 4) {
       shootinggroup = seri[currentSeri];
+      print('DEBUG - Current Seri: $currentSeri');
+      print('DEBUG - Shooting Group: $shootinggroup');
     }
+  }
+
+  void _onPhaseComplete() {
+    setState(() {
+      if (isPreparationPhase) {
+        // Hazırlık fazı bitti, atış fazına geç
+        isPreparationPhase = false;
+        remainingTime = widget.shootingTime;
+        widget.soundService.playWhistle();
+        print('DEBUG - Atış fazına geçildi');
+        return;
+      }
+
+      // Atış fazı bitti
+      isPreparationPhase = true;
+      remainingTime = widget.preparationTime;
+      widget.soundService.playWhistle();
+
+      // Sonraki atışa geç
+      if (currentShotInSet < 2) {
+        currentShotInSet++;
+        print('DEBUG - Sonraki atışa geçildi');
+        return;
+      }
+
+      // Set tamamlandı, sonraki sete geç
+      currentShotInSet = 1;
+
+      // Eğer deneme atışları varsa ve henüz bitmemişse
+      if (isPracticeRound) {
+        if (currentSet < widget.practiceRounds) {
+          currentSet++;
+          currentSeri = (currentSeri % 4) + 1;
+          _updateShootingGroup();
+          print('DEBUG - Sonraki deneme setine geçildi: Set $currentSet, Seri $currentSeri');
+          return;
+        }
+        // Deneme atışları bitti, normal setlere geç
+        isPracticeRound = false;
+        currentSet = 1;
+        currentSeri = 1;
+        _updateShootingGroup();
+        print('DEBUG - Normal setlere geçildi: Set $currentSet, Seri $currentSeri');
+        return;
+      }
+
+      // Normal setler
+      if (currentSet >= widget.matchRounds) {
+        // Tüm setler tamamlandı
+        isMatchFinished = true;
+        widget.soundService.playWhistle();
+        print('DEBUG - Yarışma bitti!');
+        return;
+      }
+      // Sonraki sete geç
+      currentSet++;
+      currentSeri = (currentSeri % 4) + 1;
+      _updateShootingGroup();
+      print('DEBUG - Sonraki sete geçildi: Set $currentSet, Seri $currentSeri');
+    });
   }
 
   @override
@@ -125,67 +189,9 @@ class _ShootingScreenState extends State<ShootingScreen> {
           isRunning = false;
           _playSound('whistle');
 
-          if (isPreparationPhase) {
-            setState(() {
-              isPreparationPhase = false;
-              remainingTime = widget.shootingTime;
-            });
-            _startTimer();
-          } else {
-            _finishShot();
-          }
+          _onPhaseComplete();
         }
       });
-    });
-  }
-
-  void _finishShot() {
-    _timer?.cancel();
-    setState(() {
-      isRunning = false;
-      isPreparationPhase = true;
-      remainingTime = widget.preparationTime;
-
-      // Sonraki atışa geç
-      if (currentShotInSet < 2) {
-        currentShotInSet++;
-        print('DEBUG - Sonraki atışa geçildi');
-        return;
-      }
-
-      // Set tamamlandı, sonraki sete geç
-      currentShotInSet = 1;
-
-      // Eğer deneme atışları varsa ve henüz bitmemişse
-      if (isPracticeRound) {
-        if (currentSet < widget.practiceRounds) {
-          currentSet++;
-          currentSeri = (currentSeri % 4) + 1;
-          _updateShootingGroup();
-          print('DEBUG - Sonraki deneme setine geçildi: $currentSet');
-          return;
-        }
-        // Deneme atışları bitti, normal setlere geç
-        isPracticeRound = false;
-        currentSet = 1;
-        currentSeri = 1;
-        _updateShootingGroup();
-        print('DEBUG - Normal setlere geçildi');
-        return;
-      }
-
-      // Normal setler
-      if (currentSet >= widget.matchRounds) {
-        // Tüm setler tamamlandı
-        isMatchFinished = true;
-        widget.soundService.playWhistle();
-        return;
-      }
-      // Sonraki sete geç
-      currentSet++;
-      currentSeri = (currentSeri % 4) + 1;
-      _updateShootingGroup();
-      print('DEBUG - Sonraki sete geçildi: $currentSet');
     });
   }
 
@@ -392,7 +398,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                 ),
                 if (!isMatchFinished)
                   ElevatedButton(
-                    onPressed: _finishShot,
+                    onPressed: _onPhaseComplete,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       padding: const EdgeInsets.symmetric(
