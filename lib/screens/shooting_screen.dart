@@ -49,6 +49,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
   bool isRunning = false;
   bool isPreparationPhase = true;
   bool isPracticeRound = false;
+  bool isMatchFinished = false;
   Timer? _timer;
   int remainingTime = 0;
   int currentSet = 1;
@@ -178,6 +179,8 @@ class _ShootingScreenState extends State<ShootingScreen> {
         // Yarışma atışları
         if (currentSet >= widget.matchRounds) {
           print('DEBUG - Yarışma bitti!');
+          isMatchFinished = true;
+          widget.soundService.playWhistle();
           return;
         }
       }
@@ -230,6 +233,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
             : 'Set $currentSet/${widget.matchRounds}');
 
     return Scaffold(
+      backgroundColor: Colors.blue.shade700,
       appBar: AppBar(
         title: const Text('Ottoman Archery Timer'),
         backgroundColor: Colors.transparent,
@@ -312,11 +316,28 @@ class _ShootingScreenState extends State<ShootingScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (isMatchFinished) ...[
+              const Icon(
+                Icons.check_circle_outline,
+                color: Colors.white,
+                size: 64,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Yarışma Tamamlandı!',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 32),
+            ],
+            if (!isMatchFinished) ...[
               Text(
                 shootinggroup,
                 style: const TextStyle(
@@ -338,50 +359,63 @@ class _ShootingScreenState extends State<ShootingScreen> {
               Text(
                 remainingTime.toString(),
                 style: TextStyle(
-                  fontSize: 120,
+                  fontSize: 96,
                   fontWeight: FontWeight.bold,
                   color: timerColor,
                 ),
               ),
               const SizedBox(height: 32),
               Text(
-                //phaseText,
                 ' ',
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+            ],
+            const SizedBox(height: 32),
+            if (!isMatchFinished) ...[
+              Text(
+                ' $phaseText  Atış $currentShotInSet / 2',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: isRunning ? stopTimer : continueTimer,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isRunning ? Colors.red : Colors.green,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
+            ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: isMatchFinished ? null : (isRunning ? stopTimer : _startTimer),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isRunning ? Colors.red : Colors.green,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 48,
+                      vertical: 16,
                     ),
-                    child: Text(
-                      isRunning ? 'DURDUR' : 'BAŞLAT',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    disabledBackgroundColor: Colors.grey,
+                  ),
+                  child: Text(
+                    isRunning ? 'DURDUR' : 'BAŞLAT',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: isMatchFinished ? Colors.grey.shade300 : Colors.white,
                     ),
                   ),
+                ),
+                if (!isMatchFinished)
                   ElevatedButton(
-                    onPressed: _finishShot,
+                    onPressed: isRunning ? null : _finishShot,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
+                        horizontal: 48,
                         vertical: 16,
                       ),
+                      disabledBackgroundColor: Colors.grey,
                     ),
                     child: const Text(
                       'BİTİR',
@@ -392,25 +426,9 @@ class _ShootingScreenState extends State<ShootingScreen> {
                       ),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              Text(
-                ' $phaseText  Atış $currentShotInSet / 2',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                isPracticeRound ? 'DENEME ATIŞI' : 'YARIŞMA',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
     );
