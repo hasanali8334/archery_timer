@@ -1,11 +1,19 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models/settings.dart';
 import 'models/shooting_style.dart';
-import 'services/sound_service.dart';
 import 'screens/welcome_screen.dart';
+import 'services/sound_service.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Release modunda debug loglarını kapat
+  if (kReleaseMode) {
+    debugPrint = (String? message, {int? wrapWidth}) => null;
+  }
+
   runApp(const MainScreen());
 }
 
@@ -18,11 +26,13 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   late Settings _settings;
-  final SoundService _soundService = SoundService();
+  late SoundService _soundService;
 
   @override
   void initState() {
     super.initState();
+    _loadSettings();
+    _soundService = SoundService();
     _settings = Settings(
       preparationTime: 10,
       shootingTime: 240,
@@ -31,10 +41,9 @@ class _MainScreenState extends State<MainScreen> {
       matchRounds: 12,
       shootingStyle: ShootingStyle.standard,
     );
-    _loadSettings();
   }
 
-  void _loadSettings() async {
+  Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _settings = Settings(

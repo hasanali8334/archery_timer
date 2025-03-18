@@ -4,6 +4,13 @@
         android:label="Ottoman Archery Timer"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- MediaPlayer ve EGL loglarını kapat -->
+        <meta-data
+            android:name="android.media.MediaPlayer.debug"
+            android:value="false" />
+        <meta-data
+            android:name="android.opengl.debug"
+            android:value="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
