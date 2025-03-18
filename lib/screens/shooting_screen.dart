@@ -65,10 +65,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
     isPracticeRound = widget.practiceRounds > 0;
     isPreparationPhase = true;
     currentSet = 1;
-    currentSeri = 1;
     currentShotInSet = 1;
+    currentSeri = 1;
     _updateSeriList();
-    print('DEBUG - InitState: Set $currentSet, Seri $currentSeri, Grup $shootinggroup');
+    print('DEBUG - InitState: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
   }
 
   void _updateSeriList() {
@@ -115,19 +115,22 @@ class _ShootingScreenState extends State<ShootingScreen> {
       // Sonraki atışa geç
       if (currentShotInSet < 2) {
         currentShotInSet++;
-        print('DEBUG - Sonraki atışa geçildi: Atış $currentShotInSet');
+        print('DEBUG - Sonraki atışa geçildi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
         return;
       }
 
       // Set tamamlandı, sonraki sete geç
       currentShotInSet = 1;
+      currentSet++;
 
       // Eğer deneme atışları varsa ve henüz bitmemişse
       if (isPracticeRound) {
-        if (currentSet < widget.practiceRounds) {
-          currentSet++;
-          currentSeri = (currentSeri % 4) + 1;
-          _updateShootingGroup();
+        if (currentSet <= widget.practiceRounds) {
+          // Seriyi güncelle ve shooting grubu ayarla
+          if (currentSet > 1) {
+            currentSeri = (currentSeri % 4) + 1;
+            _updateShootingGroup();
+          }
           print('DEBUG - Sonraki deneme setine geçildi: Set $currentSet, Seri $currentSeri, Grup $shootinggroup');
           return;
         }
@@ -141,17 +144,19 @@ class _ShootingScreenState extends State<ShootingScreen> {
       }
 
       // Normal setler
-      if (currentSet >= widget.matchRounds) {
+      if (currentSet > widget.matchRounds) {
         // Tüm setler tamamlandı
         isMatchFinished = true;
         widget.soundService.playWhistle();
         print('DEBUG - Yarışma bitti!');
         return;
       }
-      // Sonraki sete geç
-      currentSet++;
-      currentSeri = (currentSeri % 4) + 1;
-      _updateShootingGroup();
+
+      // Seriyi güncelle ve shooting grubu ayarla
+      if (currentSet > 1) {
+        currentSeri = (currentSeri % 4) + 1;
+        _updateShootingGroup();
+      }
       print('DEBUG - Sonraki sete geçildi: Set $currentSet, Seri $currentSeri, Grup $shootinggroup');
     });
   }
