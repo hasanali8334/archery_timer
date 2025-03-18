@@ -58,7 +58,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
   void initState() {
     super.initState();
     // Deneme atışı 0'dan büyükse deneme ile başla, değilse yarışma ile başla
-    isPracticeRound = false;
+    isPracticeRound = widget.practiceRounds > 0;
     currentSet = 1;
     currentShotInSet = 1;
     remainingTime = widget.preparationTime;
@@ -120,10 +120,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
     print('DEBUG - Atış bitti');
     print('Mevcut durum:');
     print(
-      'Set: $currentSet / ${widget.matchRounds}',
+      'Set: $currentSet / ${isPracticeRound ? widget.practiceRounds : widget.matchRounds}',
     );
     print('Atış: $currentShotInSet / 2');
-    print('Mod: "Yarışma"');
+    print('Mod: ${isPracticeRound ? "Deneme" : "Yarışma"}');
 
     setState(() {
       isPreparationPhase = true;
@@ -140,9 +140,21 @@ class _ShootingScreenState extends State<ShootingScreen> {
       currentShotInSet = 1;
 
       // Set kontrolü
-      if (currentSet >= widget.matchRounds) {
-        print('DEBUG - Yarışma bitti!');
-        return;
+      if (isPracticeRound) {
+        // Deneme atışları
+        if (currentSet >= widget.practiceRounds) {
+          // Deneme atışları bitti, yarışmaya geç
+          isPracticeRound = false;
+          currentSet = 1;
+          print('DEBUG - Deneme atışları bitti, yarışmaya geçildi');
+          return;
+        }
+      } else {
+        // Yarışma atışları
+        if (currentSet >= widget.matchRounds) {
+          print('DEBUG - Yarışma bitti!');
+          return;
+        }
       }
       // Sonraki sete geç
       currentSet++;
@@ -151,10 +163,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
     print('DEBUG - Sonraki durum:');
     print(
-      'Set: $currentSet / ${widget.matchRounds}',
+      'Set: $currentSet / ${isPracticeRound ? widget.practiceRounds : widget.matchRounds}',
     );
     print('Atış: $currentShotInSet / 2');
-    print('Mod: "Yarışma"');
+    print('Mod: ${isPracticeRound ? "Deneme" : "Yarışma"}');
     print('-------------------');
   }
 
@@ -184,7 +196,9 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
     String phaseText = isPreparationPhase 
         ? 'HAZIRLIK'
-        : 'Set $currentSet/${widget.matchRounds}';
+        : (isPracticeRound 
+            ? 'Deneme Atışı $currentSet/${widget.practiceRounds}'
+            : 'Set $currentSet/${widget.matchRounds}');
 
     return Scaffold(
       appBar: AppBar(
@@ -354,7 +368,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                 ),
               ),
               Text(
-                'YARIŞMA',
+                isPracticeRound ? 'DENEME ATIŞI' : 'YARIŞMA',
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
