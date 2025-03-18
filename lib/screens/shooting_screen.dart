@@ -203,9 +203,11 @@ class _ShootingScreenState extends State<ShootingScreen> {
         ? Colors.orange
         : (remainingTime <= widget.warningTime ? Colors.orange : Colors.green);
 
-    String phaseText = isPracticeRound && widget.practiceRounds > 0
-        ? 'Deneme Atışı $currentSet/${widget.practiceRounds}'
-        : 'Set $currentSet/${widget.matchRounds}';
+    String phaseText = isPreparationPhase 
+        ? 'HAZIRLIK'
+        : (widget.practiceRounds > 0 && isPracticeRound
+            ? 'Deneme Atışı $currentSet/${widget.practiceRounds}'
+            : 'Set $currentSet/${widget.matchRounds}');
 
     return Scaffold(
       appBar: AppBar(
