@@ -64,7 +64,11 @@ class _ShootingScreenState extends State<ShootingScreen> {
     remainingTime = widget.preparationTime;
     isPracticeRound = widget.practiceRounds > 0;
     isPreparationPhase = true;
+    currentSet = 1;
+    currentSeri = 1;
+    currentShotInSet = 1;
     _updateSeriList();
+    print('DEBUG - InitState: Set $currentSet, Seri $currentSeri, Grup $shootinggroup');
   }
 
   void _updateSeriList() {
@@ -111,7 +115,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
       // Sonraki atışa geç
       if (currentShotInSet < 2) {
         currentShotInSet++;
-        print('DEBUG - Sonraki atışa geçildi');
+        print('DEBUG - Sonraki atışa geçildi: Atış $currentShotInSet');
         return;
       }
 
@@ -124,7 +128,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
           currentSet++;
           currentSeri = (currentSeri % 4) + 1;
           _updateShootingGroup();
-          print('DEBUG - Sonraki deneme setine geçildi: Set $currentSet, Seri $currentSeri');
+          print('DEBUG - Sonraki deneme setine geçildi: Set $currentSet, Seri $currentSeri, Grup $shootinggroup');
           return;
         }
         // Deneme atışları bitti, normal setlere geç
@@ -132,7 +136,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
         currentSet = 1;
         currentSeri = 1;
         _updateShootingGroup();
-        print('DEBUG - Normal setlere geçildi: Set $currentSet, Seri $currentSeri');
+        print('DEBUG - Normal setlere geçildi: Set $currentSet, Seri $currentSeri, Grup $shootinggroup');
         return;
       }
 
@@ -148,7 +152,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
       currentSet++;
       currentSeri = (currentSeri % 4) + 1;
       _updateShootingGroup();
-      print('DEBUG - Sonraki sete geçildi: Set $currentSet, Seri $currentSeri');
+      print('DEBUG - Sonraki sete geçildi: Set $currentSet, Seri $currentSeri, Grup $shootinggroup');
     });
   }
 
@@ -189,9 +193,64 @@ class _ShootingScreenState extends State<ShootingScreen> {
           isRunning = false;
           _playSound('whistle');
 
-          _onPhaseComplete();
+          if (isPreparationPhase) {
+            setState(() {
+              isPreparationPhase = false;
+              remainingTime = widget.shootingTime;
+            });
+            _startTimer();
+          } else {
+            _finishShot();
+          }
         }
       });
+    });
+  }
+
+  void _finishShot() {
+    _timer?.cancel();
+    setState(() {
+      isRunning = false;
+      isPreparationPhase = true;
+      remainingTime = widget.preparationTime;
+
+      // Sonraki atışa geç
+      if (currentShotInSet < 2) {
+        currentShotInSet++;
+        _updateShootingGroup();
+        print('DEBUG - Sonraki atışa geçildi');
+        return;
+      }
+
+      // Set tamamlandı, sonraki sete geç
+      currentShotInSet = 1;
+
+      // Eğer deneme atışları varsa ve henüz bitmemişse
+      if (isPracticeRound) {
+        // Deneme atışları
+        if (currentSet >= widget.practiceRounds) {
+          // Deneme atışları bitti, yarışmaya geç
+          isPracticeRound = false;
+          currentSet = 1;
+          currentSeri = 1;
+          _updateShootingGroup();
+          print('DEBUG - Normal setlere geçildi');
+          return;
+        }
+      } else {
+        // Yarışma atışları
+        if (currentSet >= widget.matchRounds) {
+          // Tüm setler tamamlandı
+          isMatchFinished = true;
+          widget.soundService.playWhistle();
+          return;
+        }
+      }
+      // Sonraki sete geç
+      currentSet++;
+      currentSeri = (currentSeri % 4) + 1;
+      _updateShootingGroup();
+      print('DEBUG - Sonraki sete geçildi: $currentSet');
     });
   }
 
@@ -213,6 +272,15 @@ class _ShootingScreenState extends State<ShootingScreen> {
       remainingTime =
           isPreparationPhase ? widget.preparationTime : widget.shootingTime;
     });
+  }
+
+  @override
+  void didUpdateWidget(ShootingScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.shootingStyle != widget.shootingStyle) {
+      print('DEBUG - Shooting Style değişti: ${widget.shootingStyle}');
+      _updateSeriList();
+    }
   }
 
   @override
