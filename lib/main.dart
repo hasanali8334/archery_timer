@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'models/settings.dart';
 import 'models/shooting_style.dart';
 import 'services/sound_service.dart';
-import 'screens/shooting_screen.dart';
+import 'screens/welcome_screen.dart';
 
 void main() {
   runApp(const MainScreen());
@@ -58,19 +58,6 @@ class _MainScreenState extends State<MainScreen> {
     await prefs.setInt('shootingStyle', _settings.shootingStyle.index);
   }
 
-  void _resetMatch() {
-    setState(() {
-      _settings = Settings(
-        preparationTime: _settings.preparationTime,
-        shootingTime: _settings.shootingTime,
-        warningTime: _settings.warningTime,
-        practiceRounds: _settings.practiceRounds,
-        matchRounds: _settings.matchRounds,
-        shootingStyle: _settings.shootingStyle,
-      );
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -84,16 +71,9 @@ class _MainScreenState extends State<MainScreen> {
           titleMedium: TextStyle(color: Colors.white),
         ),
       ),
-      home: ShootingScreen(
-        preparationTime: _settings.preparationTime,
-        shootingTime: _settings.shootingTime,
-        warningTime: _settings.warningTime,
-        practiceRounds: _settings.practiceRounds,
-        matchRounds: _settings.matchRounds,
-        shotsPerSet: 2,
-        shootingStyle: _settings.shootingStyle,
+      home: WelcomeScreen(
+        settings: _settings,
         soundService: _soundService,
-        onReset: _resetMatch,
         onPreparationTimeChanged: (value) {
           setState(() {
             _settings = Settings(
