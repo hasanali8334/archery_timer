@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/shooting_style.dart';
+import '../models/settings.dart';
+import '../services/sound_service.dart';
+import 'welcome_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final Function(int) onPreparationTimeChanged;
@@ -158,7 +161,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
               }
 
               widget.onShootingStyleChanged(_shootingStyle);
-              Navigator.pop(context);
+              
+              // Welcome ekranına git
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => WelcomeScreen(
+                    settings: Settings(
+                      preparationTime: prepTime ?? widget.preparationTime,
+                      shootingTime: shootTime ?? widget.shootingTime,
+                      warningTime: warnTime ?? widget.warningTime,
+                      practiceRounds: practiceRounds ?? widget.practiceRounds,
+                      matchRounds: matchRounds ?? widget.matchRounds,
+                      shootingStyle: _shootingStyle,
+                    ),
+                    soundService: SoundService(),
+                    onPreparationTimeChanged: widget.onPreparationTimeChanged,
+                    onShootingTimeChanged: widget.onShootingTimeChanged,
+                    onWarningTimeChanged: widget.onWarningTimeChanged,
+                    onPracticeRoundsChanged: widget.onPracticeRoundsChanged,
+                    onMatchRoundsChanged: widget.onMatchRoundsChanged,
+                    onShootingStyleChanged: widget.onShootingStyleChanged,
+                  ),
+                ),
+              );
             },
             child: const Text(
               'KAYDET',
