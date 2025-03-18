@@ -79,13 +79,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
     }
   }
 
-  void _stopTimer() {
-    _timer?.cancel();
-    setState(() {
-      isRunning = false;
-    });
-  }
-
   void _startTimer() {
     setState(() {
       isRunning = true;
@@ -124,9 +117,8 @@ class _ShootingScreenState extends State<ShootingScreen> {
   }
 
   void _finishShot() {
-    _stopTimer();
-
-    print('DEBUG - Önceki durum:');
+    print('DEBUG - Atış bitti');
+    print('Mevcut durum:');
     print(
       'Set: $currentSet / ${isPracticeRound ? widget.practiceRounds : widget.matchRounds}',
     );
@@ -151,10 +143,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
       if (isPracticeRound && widget.practiceRounds > 0) {
         // Deneme atışları
         if (currentSet >= widget.practiceRounds) {
-          // Deneme bitti, yarışmaya geç
+          // Deneme atışları bitti, yarışmaya geç
           isPracticeRound = false;
           currentSet = 1;
-          print('DEBUG - Deneme bitti, yarışma başlıyor');
+          print('DEBUG - Deneme atışları bitti, yarışmaya geçildi');
           return;
         }
       } else {
@@ -164,7 +156,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
           return;
         }
       }
-
       // Sonraki sete geç
       currentSet++;
       print('DEBUG - Sonraki sete geçildi: $currentSet');
@@ -205,7 +196,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
     String phaseText = isPreparationPhase 
         ? 'HAZIRLIK'
-        : (widget.practiceRounds > 0 && isPracticeRound
+        : (widget.practiceRounds > 0 && currentSet <= widget.practiceRounds
             ? 'Deneme Atışı $currentSet/${widget.practiceRounds}'
             : 'Set $currentSet/${widget.matchRounds}');
 
@@ -331,7 +322,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed: isRunning ? _stopTimer : _startTimer,
+                    onPressed: isRunning ? stopTimer : continueTimer,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isRunning ? Colors.red : Colors.green,
                       padding: const EdgeInsets.symmetric(
