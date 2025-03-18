@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../services/sound_service.dart';
 import '../models/shooting_style.dart';
+import '../services/sound_service.dart';
+import 'settings_screen.dart';
+import 'final_shot_screen.dart';
 
 class ShootingScreen extends StatefulWidget {
   final Function() onReset;
@@ -13,6 +15,12 @@ class ShootingScreen extends StatefulWidget {
   final int matchRounds;
   final int shotsPerSet;
   final ShootingStyle shootingStyle;
+  final Function(int) onPreparationTimeChanged;
+  final Function(int) onShootingTimeChanged;
+  final Function(int) onWarningTimeChanged;
+  final Function(int) onPracticeRoundsChanged;
+  final Function(int) onMatchRoundsChanged;
+  final Function(ShootingStyle) onShootingStyleChanged;
 
   const ShootingScreen({
     super.key,
@@ -25,6 +33,12 @@ class ShootingScreen extends StatefulWidget {
     required this.matchRounds,
     required this.shotsPerSet,
     required this.shootingStyle,
+    required this.onPreparationTimeChanged,
+    required this.onShootingTimeChanged,
+    required this.onWarningTimeChanged,
+    required this.onPracticeRoundsChanged,
+    required this.onMatchRoundsChanged,
+    required this.onShootingStyleChanged,
   });
 
   @override
@@ -234,9 +248,85 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Atış'),
+        title: const Text('Ottoman Archery Timer'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              switch (value) {
+                case 'settings':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SettingsScreen(
+                        preparationTime: widget.preparationTime,
+                        shootingTime: widget.shootingTime,
+                        warningTime: widget.warningTime,
+                        practiceRounds: widget.practiceRounds,
+                        matchRounds: widget.matchRounds,
+                        shootingStyle: widget.shootingStyle,
+                        onPreparationTimeChanged: widget.onPreparationTimeChanged,
+                        onShootingTimeChanged: widget.onShootingTimeChanged,
+                        onWarningTimeChanged: widget.onWarningTimeChanged,
+                        onPracticeRoundsChanged: widget.onPracticeRoundsChanged,
+                        onMatchRoundsChanged: widget.onMatchRoundsChanged,
+                        onShootingStyleChanged: widget.onShootingStyleChanged,
+                      ),
+                    ),
+                  );
+                  break;
+                case 'final_shot':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FinalShotScreen(
+                        soundService: widget.soundService,
+                        onReset: widget.onReset,
+                      ),
+                    ),
+                  );
+                  break;
+                case 'reset':
+                  widget.onReset();
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text('Ayarlar'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'final_shot',
+                child: Row(
+                  children: [
+                    Icon(Icons.sports_score, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text('Final Atışı'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'reset',
+                child: Row(
+                  children: [
+                    Icon(Icons.refresh, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text('Sıfırla'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SafeArea(
         child: Center(

@@ -13,7 +13,7 @@ import 'package:archery_timer_new/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MainScreen());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
@@ -26,5 +26,10 @@ void main() {
     // Verify that our counter has incremented.
     expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsOneWidget);
+  });
+
+  testWidgets('App smoke test', (WidgetTester tester) async {
+    await tester.pumpWidget(const MainScreen());
+    expect(find.byType(MaterialApp), findsOneWidget);
   });
 }

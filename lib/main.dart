@@ -1,24 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'models/settings.dart';
 import 'models/shooting_style.dart';
-import 'screens/shooting_screen.dart';
 import 'services/sound_service.dart';
+import 'screens/shooting_screen.dart';
 
 void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Archery Timer',
-      theme: ThemeData.dark(),
-      home: const MainScreen(),
-    );
-  }
+  runApp(const MainScreen());
 }
 
 class MainScreen extends StatefulWidget {
@@ -29,100 +17,162 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final _soundService = SoundService();
-  int _preparationTime = 10;
-  int _shootingTime = 240;
-  int _warningTime = 30;
-  int _practiceRounds = 2;
-  int _matchRounds = 12;
-  ShootingStyle _shootingStyle = ShootingStyle.standard;
+  late Settings _settings;
+  final SoundService _soundService = SoundService();
 
-  void _saveSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setInt('preparationTime', _preparationTime);
-    prefs.setInt('shootingTime', _shootingTime);
-    prefs.setInt('warningTime', _warningTime);
-    prefs.setInt('practiceRounds', _practiceRounds);
-    prefs.setInt('matchRounds', _matchRounds);
-    prefs.setInt('shootingStyle', _shootingStyle.index);
+  @override
+  void initState() {
+    super.initState();
+    _settings = Settings(
+      preparationTime: 10,
+      shootingTime: 240,
+      warningTime: 30,
+      practiceRounds: 2,
+      matchRounds: 12,
+      shootingStyle: ShootingStyle.standard,
+    );
+    _loadSettings();
   }
 
   void _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _preparationTime = prefs.getInt('preparationTime') ?? 10;
-      _shootingTime = prefs.getInt('shootingTime') ?? 240;
-      _warningTime = prefs.getInt('warningTime') ?? 30;
-      _practiceRounds = prefs.getInt('practiceRounds') ?? 2;
-      _matchRounds = prefs.getInt('matchRounds') ?? 12;
-      _shootingStyle = ShootingStyle.values[prefs.getInt('shootingStyle') ?? 0];
+      _settings = Settings(
+        preparationTime: prefs.getInt('preparationTime') ?? 10,
+        shootingTime: prefs.getInt('shootingTime') ?? 240,
+        warningTime: prefs.getInt('warningTime') ?? 30,
+        practiceRounds: prefs.getInt('practiceRounds') ?? 2,
+        matchRounds: prefs.getInt('matchRounds') ?? 12,
+        shootingStyle: ShootingStyle.values[prefs.getInt('shootingStyle') ?? 0],
+      );
     });
   }
 
-  void _onReset() {
-    setState(() {});
+  void _saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('preparationTime', _settings.preparationTime);
+    await prefs.setInt('shootingTime', _settings.shootingTime);
+    await prefs.setInt('warningTime', _settings.warningTime);
+    await prefs.setInt('practiceRounds', _settings.practiceRounds);
+    await prefs.setInt('matchRounds', _settings.matchRounds);
+    await prefs.setInt('shootingStyle', _settings.shootingStyle.index);
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _loadSettings();
-  }
-
-  @override
-  void dispose() {
-    _soundService.dispose();
-    super.dispose();
+  void _resetMatch() {
+    setState(() {
+      _settings = Settings(
+        preparationTime: _settings.preparationTime,
+        shootingTime: _settings.shootingTime,
+        warningTime: _settings.warningTime,
+        practiceRounds: _settings.practiceRounds,
+        matchRounds: _settings.matchRounds,
+        shootingStyle: _settings.shootingStyle,
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return ShootingScreen(
-      preparationTime: _preparationTime,
-      shootingTime: _shootingTime,
-      warningTime: _warningTime,
-      practiceRounds: _practiceRounds,
-      matchRounds: _matchRounds,
-      shootingStyle: _shootingStyle,
-      soundService: _soundService,
-      onReset: _onReset,
-      shotsPerSet: 2,
-      onPreparationTimeChanged: (value) {
-        setState(() {
-          _preparationTime = value;
-          _saveSettings();
-        });
-      },
-      onShootingTimeChanged: (value) {
-        setState(() {
-          _shootingTime = value;
-          _saveSettings();
-        });
-      },
-      onWarningTimeChanged: (value) {
-        setState(() {
-          _warningTime = value;
-          _saveSettings();
-        });
-      },
-      onPracticeRoundsChanged: (value) {
-        setState(() {
-          _practiceRounds = value;
-          _saveSettings();
-        });
-      },
-      onMatchRoundsChanged: (value) {
-        setState(() {
-          _matchRounds = value;
-          _saveSettings();
-        });
-      },
-      onShootingStyleChanged: (value) {
-        setState(() {
-          _shootingStyle = value;
-          _saveSettings();
-        });
-      },
+    return MaterialApp(
+      title: 'Ottoman Archery Timer',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.blue.shade700,
+        textTheme: const TextTheme(
+          bodyMedium: TextStyle(color: Colors.white),
+          bodyLarge: TextStyle(color: Colors.white),
+          titleMedium: TextStyle(color: Colors.white),
+        ),
+      ),
+      home: ShootingScreen(
+        preparationTime: _settings.preparationTime,
+        shootingTime: _settings.shootingTime,
+        warningTime: _settings.warningTime,
+        practiceRounds: _settings.practiceRounds,
+        matchRounds: _settings.matchRounds,
+        shotsPerSet: 2,
+        shootingStyle: _settings.shootingStyle,
+        soundService: _soundService,
+        onReset: _resetMatch,
+        onPreparationTimeChanged: (value) {
+          setState(() {
+            _settings = Settings(
+              preparationTime: value,
+              shootingTime: _settings.shootingTime,
+              warningTime: _settings.warningTime,
+              practiceRounds: _settings.practiceRounds,
+              matchRounds: _settings.matchRounds,
+              shootingStyle: _settings.shootingStyle,
+            );
+            _saveSettings();
+          });
+        },
+        onShootingTimeChanged: (value) {
+          setState(() {
+            _settings = Settings(
+              preparationTime: _settings.preparationTime,
+              shootingTime: value,
+              warningTime: _settings.warningTime,
+              practiceRounds: _settings.practiceRounds,
+              matchRounds: _settings.matchRounds,
+              shootingStyle: _settings.shootingStyle,
+            );
+            _saveSettings();
+          });
+        },
+        onWarningTimeChanged: (value) {
+          setState(() {
+            _settings = Settings(
+              preparationTime: _settings.preparationTime,
+              shootingTime: _settings.shootingTime,
+              warningTime: value,
+              practiceRounds: _settings.practiceRounds,
+              matchRounds: _settings.matchRounds,
+              shootingStyle: _settings.shootingStyle,
+            );
+            _saveSettings();
+          });
+        },
+        onPracticeRoundsChanged: (value) {
+          setState(() {
+            _settings = Settings(
+              preparationTime: _settings.preparationTime,
+              shootingTime: _settings.shootingTime,
+              warningTime: _settings.warningTime,
+              practiceRounds: value,
+              matchRounds: _settings.matchRounds,
+              shootingStyle: _settings.shootingStyle,
+            );
+            _saveSettings();
+          });
+        },
+        onMatchRoundsChanged: (value) {
+          setState(() {
+            _settings = Settings(
+              preparationTime: _settings.preparationTime,
+              shootingTime: _settings.shootingTime,
+              warningTime: _settings.warningTime,
+              practiceRounds: _settings.practiceRounds,
+              matchRounds: value,
+              shootingStyle: _settings.shootingStyle,
+            );
+            _saveSettings();
+          });
+        },
+        onShootingStyleChanged: (value) {
+          setState(() {
+            _settings = Settings(
+              preparationTime: _settings.preparationTime,
+              shootingTime: _settings.shootingTime,
+              warningTime: _settings.warningTime,
+              practiceRounds: _settings.practiceRounds,
+              matchRounds: _settings.matchRounds,
+              shootingStyle: value,
+            );
+            _saveSettings();
+          });
+        },
+      ),
     );
   }
 }
