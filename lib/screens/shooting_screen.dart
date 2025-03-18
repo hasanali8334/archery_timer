@@ -364,14 +364,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
                   color: timerColor,
                 ),
               ),
-              const SizedBox(height: 32),
-              Text(
-                ' ',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
             ],
             const SizedBox(height: 32),
             if (!isMatchFinished) ...[
@@ -388,7 +380,9 @@ class _ShootingScreenState extends State<ShootingScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: isMatchFinished ? null : (isRunning ? stopTimer : _startTimer),
+                  onPressed: isMatchFinished
+                      ? null
+                      : (isRunning ? stopTimer : _startTimer),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isRunning ? Colors.red : Colors.green,
                     padding: const EdgeInsets.symmetric(
@@ -402,7 +396,8 @@ class _ShootingScreenState extends State<ShootingScreen> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: isMatchFinished ? Colors.grey.shade300 : Colors.white,
+                      color:
+                          isMatchFinished ? Colors.grey.shade300 : Colors.white,
                     ),
                   ),
                 ),
