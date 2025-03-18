@@ -56,7 +56,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
   int currentShotInSet = 1;
   int currentSeri = 1;
   String shootinggroup = 'AB';
-  List<String> seri = ['', 'AB', 'AB', 'AB', 'AB'];
+  List<String> seri = ['', 'AB', 'CD', 'CD', 'AB'];
 
   @override
   void initState() {
@@ -115,6 +115,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
       // Sonraki atışa geç
       if (currentShotInSet < 2) {
         currentShotInSet++;
+        if (widget.shootingStyle == ShootingStyle.rotating) {
+          currentSeri = (currentSeri % 4) + 1;
+          _updateShootingGroup();
+        }
         print('DEBUG - Sonraki atışa geçildi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
         return;
       }
@@ -126,8 +130,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
       // Eğer deneme atışları varsa ve henüz bitmemişse
       if (isPracticeRound) {
         if (currentSet <= widget.practiceRounds) {
-          // Seriyi güncelle ve shooting grubu ayarla
-          if (currentSet > 1) {
+          if (widget.shootingStyle == ShootingStyle.rotating) {
             currentSeri = (currentSeri % 4) + 1;
             _updateShootingGroup();
           }
@@ -152,19 +155,12 @@ class _ShootingScreenState extends State<ShootingScreen> {
         return;
       }
 
-      // Seriyi güncelle ve shooting grubu ayarla
-      if (currentSet > 1) {
+      if (widget.shootingStyle == ShootingStyle.rotating) {
         currentSeri = (currentSeri % 4) + 1;
         _updateShootingGroup();
       }
       print('DEBUG - Sonraki sete geçildi: Set $currentSet, Seri $currentSeri, Grup $shootinggroup');
     });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
   }
 
   void _playSound(String soundType) {
@@ -222,7 +218,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
       // Sonraki atışa geç
       if (currentShotInSet < 2) {
         currentShotInSet++;
-        _updateShootingGroup();
+        if (widget.shootingStyle == ShootingStyle.rotating) {
+          currentSeri = (currentSeri % 4) + 1;
+          _updateShootingGroup();
+        }
         print('DEBUG - Sonraki atışa geçildi');
         return;
       }
@@ -232,7 +231,6 @@ class _ShootingScreenState extends State<ShootingScreen> {
 
       // Eğer deneme atışları varsa ve henüz bitmemişse
       if (isPracticeRound) {
-        // Deneme atışları
         if (currentSet >= widget.practiceRounds) {
           // Deneme atışları bitti, yarışmaya geç
           isPracticeRound = false;
@@ -253,8 +251,10 @@ class _ShootingScreenState extends State<ShootingScreen> {
       }
       // Sonraki sete geç
       currentSet++;
-      currentSeri = (currentSeri % 4) + 1;
-      _updateShootingGroup();
+      if (widget.shootingStyle == ShootingStyle.rotating) {
+        currentSeri = (currentSeri % 4) + 1;
+        _updateShootingGroup();
+      }
       print('DEBUG - Sonraki sete geçildi: $currentSet');
     });
   }
