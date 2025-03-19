@@ -513,7 +513,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                   ),
                 if (!isMatchFinished && isRunning)
                   ElevatedButton(
-                    onPressed: _finishShot, //_onPhaseComplete,
+                    onPressed: _finishShot,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       padding: const EdgeInsets.symmetric(

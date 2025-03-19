@@ -21,6 +21,7 @@ class FinalShotScreen extends StatefulWidget {
 class _FinalShotScreenState extends State<FinalShotScreen> {
   Timer? _timer;
   bool isRunning = false;
+  bool isPaused = false;
   bool isArcherSelected = false;
   bool isPreparationPhase = true;
   bool isShootingPhase = false;
@@ -189,11 +190,18 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
     }
   }
 
-  void _startCountdown() {
+  void _startCountdown({bool continueFromPause = false}) {
     _timer?.cancel();
-    _playSound('whistle');
+    if (!continueFromPause) {
+      _playSound('whistle');
+    }
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (isPaused) {
+        timer.cancel();
+        return;
+      }
+
       setState(() {
         if (remainingTime > 0) {
           remainingTime--;
@@ -273,6 +281,22 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
         }
       });
     });
+  }
+
+  void _toggleTimer() {
+    if (isRunning && !isPaused) {
+      // Timer'ı durdur
+      _timer?.cancel();
+      setState(() {
+        isPaused = true;
+      });
+    } else if (isRunning && isPaused) {
+      // Timer'ı devam ettir
+      setState(() {
+        isPaused = false;
+      });
+      _startCountdown(continueFromPause: true);
+    }
   }
 
   void showResults() {
@@ -471,20 +495,46 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 16),
-                                if (isRunning && isShootingPhase)
-                                  ElevatedButton(
-                                    onPressed: () => switchArcher(),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 32,
-                                        vertical: 16,
+                                if (isRunning)
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: _toggleTimer,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: isPaused ? Colors.green : Colors.red,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 32,
+                                            vertical: 16,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          isPaused ? 'DEVAM ET' : 'DURDUR',
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                    child: const Text(
-                                      'DİĞER YARIŞMACIYA GEÇ',
-                                      style: TextStyle(fontSize: 20),
-                                    ),
+                                      if (isShootingPhase && !isPaused)
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 16),
+                                          child: ElevatedButton(
+                                            onPressed: () => switchArcher(),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.white,
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 32,
+                                                vertical: 16,
+                                              ),
+                                            ),
+                                            child: const Text(
+                                              'DİĞER YARIŞMACIYA GEÇ',
+                                              style: TextStyle(fontSize: 20),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                               ],
                             ),
