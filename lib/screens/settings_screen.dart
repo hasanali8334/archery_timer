@@ -348,34 +348,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              DropdownButtonFormField<ShootingStyle>(
-                value: _shootingStyle,
-                decoration: const InputDecoration(
-                  labelText: 'Atış Stili',
-                  border: OutlineInputBorder(),
+              SizedBox(
+                width: double.infinity,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[800],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButton<ShootingStyle>(
+                    value: _shootingStyle,
+                    isExpanded: true,
+                    dropdownColor: Colors.grey[800],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                    underline: Container(),
+                    items: [
+                      DropdownMenuItem(
+                        value: ShootingStyle.standard,
+                        child: Text(
+                          'Standart (AB)',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: ShootingStyle.alternating,
+                        child: Text(
+                          'Dönüşümsüz (AB-CD-AB-CD)',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: ShootingStyle.rotating,
+                        child: Text(
+                          'Dönüşümlü (AB-CD-CD-AB)',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                    onChanged: (ShootingStyle? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          _shootingStyle = newValue;
+                        });
+                      }
+                    },
+                  ),
                 ),
-                items: const [
-                  DropdownMenuItem(
-                    value: ShootingStyle.standard,
-                    child: Text('Standart'),
-                  ),
-                  DropdownMenuItem(
-                    value: ShootingStyle.alternating,
-                    child: Text('Dönüşümlü'),
-                  ),
-                  DropdownMenuItem(
-                    value: ShootingStyle.rotating,
-                    child: Text('Dönüşümlü (2 Set)'),
-                  ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _shootingStyle = value;
-                      print('DEBUG - Shooting Style değişti: $_shootingStyle');
-                    });
-                  }
-                },
               ),
             ],
           ),
