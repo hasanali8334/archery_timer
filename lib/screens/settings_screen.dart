@@ -156,7 +156,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
               if (practiceRounds != null && practiceRounds >= 0) {
                 widget.onPracticeRoundsChanged(practiceRounds);
-                print('DEBUG - Deneme atış sayısı güncellendi: $practiceRounds');
+                print(
+                    'DEBUG - Deneme atış sayısı güncellendi: $practiceRounds');
               }
 
               final matchRounds = int.tryParse(_matchRoundsController.text);
@@ -353,13 +354,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: Colors.grey[800],
+                    color: Colors.blue.shade700,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: DropdownButton<ShootingStyle>(
                     value: _shootingStyle,
                     isExpanded: true,
-                    dropdownColor: Colors.grey[800],
+                    dropdownColor: Colors.blue.shade700,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,

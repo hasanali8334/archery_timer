@@ -249,14 +249,16 @@ class _ShootingScreenState extends State<ShootingScreen> {
       // Atış tamamlandı, sonraki atışa geç
       if (currentShotInSet < 2) {
         // Her atış sonunda grup değişimi yap
-        if (widget.shootingStyle == ShootingStyle.rotating || widget.shootingStyle == ShootingStyle.alternating) {
+        if (widget.shootingStyle == ShootingStyle.rotating ||
+            widget.shootingStyle == ShootingStyle.alternating) {
           int nextSeri = (currentSeri % 4) + 1;
           print('DEBUG - Seri değişiyor: $currentSeri -> $nextSeri');
           currentSeri = nextSeri;
           _updateShootingGroup();
         }
         currentShotInSet++;
-        print('DEBUG - Sonraki atışa geçildi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
+        print(
+            'DEBUG - Sonraki atışa geçildi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
         return;
       }
 
@@ -270,7 +272,8 @@ class _ShootingScreenState extends State<ShootingScreen> {
         currentSet = 1;
         currentSeri = 1;
         _updateShootingGroup();
-        print('DEBUG - Normal setlere geçildi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
+        print(
+            'DEBUG - Normal setlere geçildi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
         return;
       }
 
@@ -282,13 +285,16 @@ class _ShootingScreenState extends State<ShootingScreen> {
       }
 
       // Sonraki sete geç
-      if (widget.shootingStyle == ShootingStyle.rotating || widget.shootingStyle == ShootingStyle.alternating) {
+      if (widget.shootingStyle == ShootingStyle.rotating ||
+          widget.shootingStyle == ShootingStyle.alternating) {
         int nextSeri = (currentSeri % 4) + 1;
-        print('DEBUG - Set değişiminde seri değişiyor: $currentSeri -> $nextSeri');
+        print(
+            'DEBUG - Set değişiminde seri değişiyor: $currentSeri -> $nextSeri');
         currentSeri = nextSeri;
         _updateShootingGroup();
       }
-      print('DEBUG - Sonraki sete geçildi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
+      print(
+          'DEBUG - Sonraki sete geçildi: Set $currentSet, Shot $currentShotInSet, Seri $currentSeri, Grup $shootinggroup');
     });
   }
 
@@ -337,7 +343,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
       backgroundColor: Colors.blue.shade700,
       appBar: AppBar(
         title: const Text('Ottoman Archery Timer'),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.blue.shade700,
         elevation: 0,
         actions: [
           PopupMenuButton<String>(
@@ -387,7 +393,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                 value: 'settings',
                 child: Row(
                   children: [
-                    Icon(Icons.settings, color: Colors.white),
+                    Icon(Icons.settings, color: Colors.blue),
                     SizedBox(width: 8),
                     Text('Ayarlar'),
                   ],
@@ -397,7 +403,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                 value: 'final_shot',
                 child: Row(
                   children: [
-                    Icon(Icons.sports_score, color: Colors.white),
+                    Icon(Icons.sports_score, color: Colors.blue),
                     SizedBox(width: 8),
                     Text('Final Atışı'),
                   ],
@@ -407,7 +413,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                 value: 'reset',
                 child: Row(
                   children: [
-                    Icon(Icons.refresh, color: Colors.white),
+                    Icon(Icons.refresh, color: Colors.blue),
                     SizedBox(width: 8),
                     Text('Sıfırla'),
                   ],
@@ -442,7 +448,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
               Text(
                 shootinggroup,
                 style: const TextStyle(
-                  fontSize: 32,
+                  fontSize: 96,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -480,28 +486,30 @@ class _ShootingScreenState extends State<ShootingScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
-                  onPressed: isMatchFinished
-                      ? null
-                      : (isRunning ? stopTimer : _startTimer),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isRunning ? Colors.red : Colors.green,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 48,
-                      vertical: 16,
+                if (!isMatchFinished)
+                  ElevatedButton(
+                    onPressed: isMatchFinished
+                        ? null
+                        : (isRunning ? stopTimer : _startTimer),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isRunning ? Colors.red : Colors.green,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 48,
+                        vertical: 16,
+                      ),
+                      disabledBackgroundColor: Colors.grey,
                     ),
-                    disabledBackgroundColor: Colors.grey,
-                  ),
-                  child: Text(
-                    isRunning ? 'DURDUR' : 'BAŞLAT',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color:
-                          isMatchFinished ? Colors.grey.shade300 : Colors.white,
+                    child: Text(
+                      isRunning ? 'DURDUR' : 'BAŞLAT',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: isMatchFinished
+                            ? Colors.grey.shade300
+                            : Colors.white,
+                      ),
                     ),
                   ),
-                ),
                 if (!isMatchFinished)
                   ElevatedButton(
                     onPressed: _onPhaseComplete,
