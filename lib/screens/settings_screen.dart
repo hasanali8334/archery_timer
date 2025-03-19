@@ -210,7 +210,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Deneme Serisi Sayısı',
+                'Deneme Atış Sayısı',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -218,27 +218,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+              TextField(
+                controller: _practiceRoundsController,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'Deneme Atış Sayısı',
+                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(color: Colors.white),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: TextField(
-                  controller: _practiceRoundsController,
-                  keyboardType: TextInputType.number,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    hintText: 'Deneme serisi sayısı (0 veya daha fazla)',
-                    hintStyle: TextStyle(color: Colors.white54),
-                    border: InputBorder.none,
-                  ),
-                  onChanged: _updatePracticeRounds,
-                ),
+                style: const TextStyle(color: Colors.white),
+                onChanged: _updatePracticeRounds,
               ),
               const SizedBox(height: 24),
               const Text(
-                'Hazırlık Süresi (saniye)',
+                'Hazırlık Süresi (sn)',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -246,27 +240,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+              TextField(
+                controller: _preparationTimeController,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'Hazırlık Süresi (sn)',
+                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(color: Colors.white),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: TextField(
-                  controller: _preparationTimeController,
-                  keyboardType: TextInputType.number,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    hintText: '10-60 saniye arası',
-                    hintStyle: TextStyle(color: Colors.white54),
-                    border: InputBorder.none,
-                  ),
-                  onChanged: _updatePreparationTime,
-                ),
+                style: const TextStyle(color: Colors.white),
+                onChanged: _updatePreparationTime,
               ),
               const SizedBox(height: 24),
               const Text(
-                'Atış Süresi (saniye)',
+                'Atış Süresi (sn)',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -274,27 +262,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+              TextField(
+                controller: _shootingTimeController,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'Atış Süresi (sn)',
+                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(color: Colors.white),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: TextField(
-                  controller: _shootingTimeController,
-                  keyboardType: TextInputType.number,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    hintText: 'Atış süresi (saniye)',
-                    hintStyle: TextStyle(color: Colors.white54),
-                    border: InputBorder.none,
-                  ),
-                  onChanged: _updateShootingTime,
-                ),
+                style: const TextStyle(color: Colors.white),
+                onChanged: _updateShootingTime,
               ),
               const SizedBox(height: 24),
               const Text(
-                'Uyarı Süresi (saniye)',
+                'Uyarı Süresi (sn)',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -302,27 +284,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+              TextField(
+                controller: _warningTimeController,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'Uyarı Süresi (sn)',
+                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(color: Colors.white),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: TextField(
-                  controller: _warningTimeController,
-                  keyboardType: TextInputType.number,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    hintText: '10-60 saniye arası',
-                    hintStyle: TextStyle(color: Colors.white54),
-                    border: InputBorder.none,
-                  ),
-                  onChanged: _updateWarningTime,
-                ),
+                style: const TextStyle(color: Colors.white),
+                onChanged: _updateWarningTime,
               ),
               const SizedBox(height: 24),
               const Text(
-                'Yarışma Serisi Sayısı',
+                'Yarışma Atış Sayısı',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -330,23 +306,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+              TextField(
+                controller: _matchRoundsController,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.done,
+                decoration: const InputDecoration(
+                  labelText: 'Yarışma Atış Sayısı',
+                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(color: Colors.white),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: TextField(
-                  controller: _matchRoundsController,
-                  keyboardType: TextInputType.number,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    hintText: 'Yarışma serisi sayısı (1 veya daha fazla)',
-                    hintStyle: TextStyle(color: Colors.white54),
-                    border: InputBorder.none,
-                  ),
-                  onChanged: _updateMatchRounds,
-                ),
+                style: const TextStyle(color: Colors.white),
+                onChanged: _updateMatchRounds,
               ),
               const SizedBox(height: 24),
               SizedBox(
