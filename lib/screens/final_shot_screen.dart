@@ -313,9 +313,7 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
   }
 
   String formatTime(int time) {
-    int minutes = time ~/ 60;
-    int seconds = time % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    return time.toString().padLeft(2, '0');
   }
 
   void _stopTimer() {
@@ -496,8 +494,7 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 if (isRunning)
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                  Column(
                                     children: [
                                       ElevatedButton(
                                         onPressed: _toggleTimer,
@@ -516,22 +513,20 @@ class _FinalShotScreenState extends State<FinalShotScreen> {
                                           ),
                                         ),
                                       ),
+                                      const SizedBox(height: 16),
                                       if (isShootingPhase && !isPaused)
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 16),
-                                          child: ElevatedButton(
-                                            onPressed: () => switchArcher(),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.white,
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 32,
-                                                vertical: 16,
-                                              ),
+                                        ElevatedButton(
+                                          onPressed: () => switchArcher(),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 32,
+                                              vertical: 16,
                                             ),
-                                            child: const Text(
-                                              'DİĞER YARIŞMACIYA GEÇ',
-                                              style: TextStyle(fontSize: 20),
-                                            ),
+                                          ),
+                                          child: const Text(
+                                            'DİĞER YARIŞMACIYA GEÇ',
+                                            style: TextStyle(fontSize: 20),
                                           ),
                                         ),
                                     ],
