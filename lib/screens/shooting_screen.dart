@@ -108,7 +108,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
   }
 
   void _onPhaseComplete() {
-    _timer?.cancel();
+    // _timer?.cancel();
     setState(() {
       if (isPreparationPhase) {
         // Hazırlık fazı bitti, atış fazına geç
@@ -513,7 +513,7 @@ class _ShootingScreenState extends State<ShootingScreen> {
                   ),
                 if (!isMatchFinished && isRunning)
                   ElevatedButton(
-                    onPressed: _onPhaseComplete,
+                    onPressed: _finishShot, //_onPhaseComplete,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       padding: const EdgeInsets.symmetric(
