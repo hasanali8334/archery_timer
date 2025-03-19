@@ -203,9 +203,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
       backgroundColor: Colors.blue.shade700,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+      body: Form(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -218,7 +218,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              TextField(
+              TextFormField(
                 controller: _practiceRoundsController,
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.next,
@@ -226,6 +226,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   labelText: 'Deneme Atış Sayısı',
                   border: OutlineInputBorder(),
                   labelStyle: TextStyle(color: Colors.white),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
                 ),
                 style: const TextStyle(color: Colors.white),
                 onChanged: _updatePracticeRounds,
@@ -240,14 +246,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              TextField(
+              TextFormField(
                 controller: _preparationTimeController,
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.next,
+                autofocus: true,
                 decoration: const InputDecoration(
                   labelText: 'Hazırlık Süresi (sn)',
                   border: OutlineInputBorder(),
                   labelStyle: TextStyle(color: Colors.white),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
                 ),
                 style: const TextStyle(color: Colors.white),
                 onChanged: _updatePreparationTime,
@@ -262,7 +275,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              TextField(
+              TextFormField(
                 controller: _shootingTimeController,
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.next,
@@ -270,6 +283,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   labelText: 'Atış Süresi (sn)',
                   border: OutlineInputBorder(),
                   labelStyle: TextStyle(color: Colors.white),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
                 ),
                 style: const TextStyle(color: Colors.white),
                 onChanged: _updateShootingTime,
@@ -284,7 +303,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              TextField(
+              TextFormField(
                 controller: _warningTimeController,
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.next,
@@ -292,6 +311,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   labelText: 'Uyarı Süresi (sn)',
                   border: OutlineInputBorder(),
                   labelStyle: TextStyle(color: Colors.white),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
                 ),
                 style: const TextStyle(color: Colors.white),
                 onChanged: _updateWarningTime,
@@ -306,7 +331,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              TextField(
+              TextFormField(
                 controller: _matchRoundsController,
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.done,
@@ -314,6 +339,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   labelText: 'Yarışma Atış Sayısı',
                   border: OutlineInputBorder(),
                   labelStyle: TextStyle(color: Colors.white),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
                 ),
                 style: const TextStyle(color: Colors.white),
                 onChanged: _updateMatchRounds,
